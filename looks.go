@@ -7,19 +7,18 @@ import (
 	"image/draw"
 	"image/png"
 	"io/ioutil"
+	"math/rand"
 	"os"
-	"reflect"
+	"time"
 )
 
 type Config struct {
-	Pieces []string `json:"pieces,omitempty"`
+	PieceOrder []string `json:"piece-order,omitempty"`
 	Filename string `json:"filename,omitempty"`
-	Rarity map[string]interface{} `json:"rarity,omitempty"`
-
-} 
+	Rarity map[string]map[string]float64 `json:"rarity,omitempty"`
+}
 
 func main() {
-
 	config, err := loadJSON();
 	if err != nil {
 		handleError(err, exit)
@@ -50,17 +49,37 @@ func main() {
 }
 
 func loadFiles(config Config) ([]*os.File, error) {
-	fileNames := config.Pieces
+	fileNames := config.PieceOrder
 	var files []*os.File
 	for i := 0; i < len(fileNames); i++ {
+		file := fileNames[i]
+		piece := handleRarity(config.Rarity[file])
 		// We need to add the randomness logic here.
-		reader, err := os.Open(fmt.Sprintf("rat-parts_%s-000.png", fileNames[i]))
-		if err != nil {
-			return nil, handleError(err, exit)
+		if piece != "nil" {
+			reader, err := os.Open(fmt.Sprintf("rat-parts_%s-%s.png", file, piece))
+			if err != nil {
+				return nil, handleError(err, exit)
+			}
+			files = append(files, reader)
 		}
-		files = append(files, reader)
 	}
 	return files, nil
+}
+
+func handleRarity(rarities map[string]float64) string {
+	var chances []string
+	for k, v := range rarities {
+		for i := 0; i < int(v); i++ {
+			chances = append(chances, k)
+		}
+	}
+
+	seed := time.Now().Unix() + int64(time.Now().Nanosecond())
+	rand.Seed(seed)
+
+	random := rand.Intn(len(chances))
+
+	return chances[random]
 }
 
 func getImages(files []*os.File) ([]image.Image, error) {
@@ -100,21 +119,18 @@ func loadJSON() (Config, error) {
 	handleError(err)
 	err = json.Unmarshal(data, &config)
 	handleError(err)
-	fmt.Println(reflect.TypeOf(config.Pieces))
-	parseRarity(config.Rarity)
 	return config, handleError(err)
 }
 
-func parseRarity(rarity map[string]interface{}, callbacks ...func(rarity map[string]interface{}))  {
-	for _, val := range rarity {
-		if reflect.TypeOf(val) == reflect.TypeOf(make(map[string]interface{})) {
-			parseRarity(val.(map[string]interface{}), callbacks...)
-		} else {
-			for i := 0; i < len(callbacks); i++ {
-				callback := callbacks[i]
-				callback(val.(map[string]interface{}))
-			}
-		}
-	}
-}
-
+// func parseRarity(rarity map[string]interface{}, callbacks ...func(rarity float64)) {
+// 	for _, val := range rarity {
+// 		if reflect.TypeOf(val) == reflect.TypeOf(make(map[string]interface{})) {
+// 			parseRarity(val.(map[string]interface{}), callbacks...)
+// 		} else if  {
+// 			for i := 0; i < len(callbacks); i++ {
+// 				callback := callbacks[i]
+// 				callback(val.(float64))
+// 			}
+// 		}
+// 	}
+// }

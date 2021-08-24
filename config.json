@@ -1,5 +1,5 @@
 {
-  "pieces": ["background" , "tail", "ears", "color", "head", "snout", "markings", "torso", "shirt", "eyes", "accessory", "hat", "pet"],
+  "piece-order": ["background" , "tail", "ears", "color", "head", "snout", "markings", "torso", "shirt", "eyes", "accessory", "hat", "pet"],
   "filename": "rat-parts_%s-%s.png",
   "rarity": {
     "background": {
