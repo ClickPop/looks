@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 50,
+  "output-image-count": 80,
   "attributes": {
     "accessory": {
       "nil": {
@@ -27,6 +27,16 @@
         "rattitude": 0
       },
       "nosering-gold": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "mask-surgical": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "paperbag-nose": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -97,6 +107,16 @@
       },
       "red": {
         "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "red-dark": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "gray": {
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       }
@@ -229,6 +249,11 @@
         "rattitude": 0
       },
       "rattail-brown": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "ballcap-backwards-blue-yellow": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
