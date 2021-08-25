@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 10,
+  "output-image-count": 50,
   "attributes": {
     "accessory": {
       "nil": {
@@ -39,6 +39,16 @@
         "rattitude": 0
       },
       "dark-tie-dye": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "green-noise": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "green-tie-dye": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -134,6 +144,16 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "round": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "round-stressed": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "sleeping": {
         "rarity": 3,
         "cuteness": 0,
@@ -183,12 +203,32 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "ballcap-blue-green-white": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "halo": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
       "ponytail-blonde": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "ponytail-brown": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "rattail-blonde": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "rattail-brown": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -256,6 +296,16 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "buttondown-ripped-purple": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "buttondown-ripped-white": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "button-rainbow": {
         "rarity": 2,
         "cuteness": 0,
@@ -271,6 +321,11 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "tank-black": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "t-pizza": {
         "rarity": 1,
         "cuteness": 0,
@@ -281,7 +336,17 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "t-white": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "t-white-blue": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "tube-blue": {
         "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
@@ -308,8 +373,28 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "one-tooth": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "scream": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "smile": {
         "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "smile-big": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "smile-wonky": {
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -322,6 +407,11 @@
     "tail": {
       "nil": {
         "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "bob-pink": {
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
