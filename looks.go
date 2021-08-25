@@ -9,15 +9,31 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
 )
 
+var wg sync.WaitGroup
 type Config struct {
 	PieceOrder []string `json:"piece-order,omitempty"`
 	Filename string `json:"filename,omitempty"`
 	Pathname string `json:"pathname,omitempty"`
+	OutputDirectory string `json:"output-directory,omitempty"`
 	OutputImageCount float64 `json:"output-image-count,omitempty"`
-	Rarity map[string]map[string]float64 `json:"rarity,omitempty"`
+	Attributes map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
+}
+
+type Metadata struct {
+	Piece string `json:"piece"`
+	Type string `json:"type"`
+	Attributes map[string]float64 `json:"attributes"`
+}
+
+type FinalData struct {
+	Pieces map[string]string `json:"pieces"`
+	Rarity int `json:"rarity"`
+	Cuteness int `json:"cuteness"`
+	Rattitude int `json:"rattitude"`
 }
 
 func main() {
@@ -26,56 +42,83 @@ func main() {
 		handleError(err, exit)
 	}
 	for i := 0; i < int(config.OutputImageCount); i++ {
-		files, err := loadFiles(config)
-		handleError(err)
-		images, err := getImages(files)
-		handleError(err)
-
-		rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
-		img := image.NewRGBA(rect)
-		origin := image.Point{0, 0}
-		for i := 0; i < len(images); i++ {
-			currImg := images[i]
-			if i == 0 {
-				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
-			} else {
-				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
-			}
-		}
-
-		out, err := os.Create(fmt.Sprintf("rats/%d.png", i))
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(fmt.Sprintf("Image #%d created", i))
-		png.Encode(out, img)
+		wg.Add(1)
+		go makeFile(config, i)
 	}
+	wg.Wait()
+	fmt.Printf("Generated %d files in directory %s\n", int(config.OutputImageCount), config.OutputDirectory);
 }
 
-func loadFiles(config Config) ([]*os.File, error) {
+func makeFile(config Config, i int)  {
+	fmt.Printf("Loading files for image #%d\n", i)
+	files, metadata, err := loadFiles(config)
+	handleError(err)
+	fmt.Printf("Decoding data for image #%d\n", i)
+	images, err := getImages(files)
+	handleError(err)
+
+	rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
+	img := image.NewRGBA(rect)
+	origin := image.Point{0, 0}
+	fmt.Printf("Layering assets for image #%d\n", i)
+	for i := 0; i < len(images); i++ {
+		currImg := images[i]
+		if i == 0 {
+			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
+		} else {
+			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
+		}
+	}
+
+	out, err := os.Create(fmt.Sprintf("%s/%d.png", config.OutputDirectory, i))
+	handleError(err)
+	png.Encode(out, img)
+	fmt.Printf("Image #%d.png created\n", i)
+	var finalMeta FinalData
+	finalMeta.Pieces = make(map[string]string, len(metadata))
+	for j := 0; j < len(metadata); j++ {
+		currMeta := metadata[j]
+		finalMeta.Pieces[currMeta.Type] = currMeta.Piece
+		finalMeta.Rarity += int(currMeta.Attributes["rarity"])
+		finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
+		finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
+	}
+	jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
+	handleError(err)
+	err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
+	handleError(err)
+	fmt.Printf("Metadata #%d.json created\n", i)
+	wg.Done()
+}
+
+func loadFiles(config Config) ([]*os.File, []Metadata, error) {
 	fileNames := config.PieceOrder
 	var files []*os.File
+	var metadata []Metadata
 	for i := 0; i < len(fileNames); i++ {
 		file := fileNames[i]
-		piece := handleRarity(config.Rarity[file])
-		// We need to add the randomness logic here.
+		piece, meta := handleRarity(config.Attributes[file])
 		if piece != "nil" {
 			filename := fmt.Sprintf(config.Filename, file, piece)
 			reader, err := os.Open(fmt.Sprintf("%s/%s", config.Pathname, filename))
 			if err != nil {
-				return nil, handleError(err, exit)
+				return nil, nil, handleError(err, exit)
 			}
 			files = append(files, reader)
+			metadata = append(metadata, Metadata{Type: file, Piece: piece, Attributes: meta})
 		}
 	}
-	return files, nil
+	return files, metadata, nil
 }
 
-func handleRarity(rarities map[string]float64) string {
+func handleRarity(pieceTypes map[string]map[string]float64) (string, map[string]float64) {
 	var chances []string
-	for k, v := range rarities {
-		for i := 0; i < int(v); i++ {
-			chances = append(chances, k)
+	for key, val := range pieceTypes {
+		rarities := val
+		for _, v := range rarities {
+			for i := 0; i < int(v); i++ {
+				chances = append(chances, key)
+			}
 		}
 	}
 
@@ -83,8 +126,8 @@ func handleRarity(rarities map[string]float64) string {
 	rand.Seed(seed)
 
 	random := rand.Intn(len(chances))
-
-	return chances[random]
+	choice := chances[random]
+	return choice, pieceTypes[choice]
 }
 
 func getImages(files []*os.File) ([]image.Image, error) {
