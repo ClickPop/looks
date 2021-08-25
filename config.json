@@ -6,7 +6,7 @@
   "rarity": {
     "accessory": {
       "nil": 5,
-      "earring-gold": 4,
+      "earing-gold": 4,
       "earring-nosering-gold": 1,
       "medalion-gold": 1,
       "nosering-gold": 1
@@ -18,7 +18,7 @@
       "light-blue-noise": 2,
       "light-yellow-noise": 2,
       "red": 3,
-      "background-red-noise": 2
+      "red-noise": 2
     },
     "color": {
       "blue-light": 2,
@@ -27,7 +27,7 @@
       "red": 1
     },
     "ears": {
-      "noraml-pink": 4,
+      "normal-pink": 4,
       "torn-maroon": 1,
       "torn-pink": 1
     },
@@ -84,7 +84,7 @@
       "fangs": 1,
       "lipstick-red": 3,
       "smile": 4,
-      "tongue-out-gold-tooth": 2,
+      "tongue-out-gold-tooth": 2
     },
     "tail": {
       "nil": 1,
