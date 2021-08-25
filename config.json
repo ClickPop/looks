@@ -90,7 +90,22 @@
       }
     },
     "color": {
+      "golden": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "blue-light": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "blue": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "blue-dark": {
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
@@ -100,8 +115,18 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "gray": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "gray-dark": {
         "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "red-light": {
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -114,11 +139,6 @@
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
-      },
-      "gray": {
-        "rarity": 3,
-        "cuteness": 0,
-        "rattitude": 0
       }
     },
     "ears": {
@@ -127,12 +147,27 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "torn-pink": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "normal-maroon": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "torn-maroon": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
-      "torn-pink": {
+      "normal-mauve": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "torn-mauve": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
