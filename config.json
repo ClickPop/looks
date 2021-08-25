@@ -1,96 +1,98 @@
 {
-  "piece-order": ["background", "tail", "ears", "color", "head", "snout", "markings", "torso", "shirt", "eyes", "accessory", "hat", "pet"],
-  "filename": "rat-parts_%s-%s.png",
+  "piece-order": ["background", "tail", "ears", "color", "markings", "head", "snout", "torso", "shirt", "eyes", "accessory", "hat", "pet"],
+  "filename": "%s-%s.png",
   "pathname": "pieces",
-  "output-image-count": 100,
+  "output-image-count": 20,
   "rarity": {
     "accessory": {
-      "nil": 4,
-      "000": 1,
-      "001": 1,
-      "002": 1,
-      "003": 2
+      "nil": 5,
+      "earring-gold": 4,
+      "earring-nosering-gold": 1,
+      "medalion-gold": 1,
+      "nosering-gold": 1
     },
     "background": {
-      "000": 1,
-      "001": 3,
-      "002": 3,
-      "003": 2,
-      "004": 2,
-      "005": 2,
-      "006": 1
+      "blue-tie-dye": 1,
+      "dark-tie-dye": 1,
+      "light-blue": 3,
+      "light-blue-noise": 2,
+      "light-yellow-noise": 2,
+      "red": 3,
+      "background-red-noise": 2
     },
     "color": {
-      "000": 3,
-      "001": 1,
-      "002": 2,
-      "003": 2
+      "blue-light": 2,
+      "gray-light": 3,
+      "gray-dark": 3,
+      "red": 1
     },
     "ears": {
-      "000": 4,
-      "001": 2,
-      "002": 1
+      "noraml-pink": 4,
+      "torn-maroon": 1,
+      "torn-pink": 1
     },
     "eyes": {
-      "000": 4,
-      "001": 1,
-      "002": 2,
-      "003": 2,
-      "004": 3,
-      "005": 2,
-      "006": 1,
-      "007": 1,
-      "008": 2
+      "angry": 3,
+      "happy": 3,
+      "happy-lashes": 3,
+      "normal": 5,
+      "normal-lashes": 5,
+      "sleeping": 3,
+      "xx": 2,
+      "zombie-red": 1,
+      "zombie-white": 2
     },
     "glasses": {
-      "nil": 4,
-      "000": 1,
-      "001": 1
+      "nil": 3,
+      "round-gold": 1,
+      "shades-roung-black": 1
     },
     "hat": {
       "nil": 5,
-      "000": 3,
-      "001": 1,
-      "002": 1
+      "ballcap-black-yellow": 3,
+      "halo": 1,
+      "ponytail-blonde": 1
     },
     "head": {
-      "000": 1
+      "base": 1
     },
     "markings": {
       "nil": 5,
-      "000": 2,
-      "001": 3,
-      "002": 1,
-      "003": 1
+      "white-face-side": 2,
+      "white-spot": 3,
+      "white-star": 1,
+      "white-undernose": 2
     },
     "pet": {
       "nil": 6,
-      "000": 1,
-      "001": 1
+      "caterpillar-green": 1,
+      "worm-pink": 1
     },
     "shirt": {
       "nil": 4,
-      "000": 3,
-      "001": 1,
-      "002": 1,
-      "003": 1,
-      "004": 1,
-      "005": 3,
-      "006": 3,
-      "007": 2
+      "button-denim": 2,
+      "button-rainbow": 2,
+      "button-white-tie": 3,
+      "tank-white": 2,
+      "t-pizza": 1,
+      "t-rainbow": 2,
+      "t-white-blue": 3,
+      "tube-pink": 3
+    },
+    "snout": {
+      "buck-teeth": 2,
+      "fangs": 1,
+      "lipstick-red": 3,
+      "smile": 4,
+      "tongue-out-gold-tooth": 2,
     },
     "tail": {
       "nil": 1,
-      "000": 6,
-      "001": 3
-    },
-    "snout": {
-      "000": 3,
-      "001": 2,
-      "002": 1
+      "normal-pink": 6,
+      "normal-maroon": 3
     },
     "torso": {
-      "000": 1
+      "base": 1
     }
   }
 }
