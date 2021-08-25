@@ -15,6 +15,8 @@ import (
 type Config struct {
 	PieceOrder []string `json:"piece-order,omitempty"`
 	Filename string `json:"filename,omitempty"`
+	Pathname string `json:"pathname,omitempty"`
+	OutputImageCount float64 `json:"output-image-count,omitempty"`
 	Rarity map[string]map[string]float64 `json:"rarity,omitempty"`
 }
 
@@ -23,29 +25,31 @@ func main() {
 	if err != nil {
 		handleError(err, exit)
 	}
-	files, err := loadFiles(config)
-	handleError(err)
-	images, err := getImages(files)
-	handleError(err)
+	for i := 0; i < int(config.OutputImageCount); i++ {
+		files, err := loadFiles(config)
+		handleError(err)
+		images, err := getImages(files)
+		handleError(err)
 
-	rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
-	img := image.NewRGBA(rect)
-	origin := image.Point{0, 0}
-	for i := 0; i < len(images); i++ {
-		currImg := images[i]
-		if i == 0 {
-			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
-		} else {
-			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
+		rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
+		img := image.NewRGBA(rect)
+		origin := image.Point{0, 0}
+		for i := 0; i < len(images); i++ {
+			currImg := images[i]
+			if i == 0 {
+				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
+			} else {
+				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
+			}
 		}
-	}
 
-	out, err := os.Create("test.png")
-	if err != nil {
-		fmt.Println(err)
+		out, err := os.Create(fmt.Sprintf("rats/%d.png", i))
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(fmt.Sprintf("Image #%d created", i))
+		png.Encode(out, img)
 	}
-	
-	png.Encode(out, img)
 }
 
 func loadFiles(config Config) ([]*os.File, error) {
@@ -56,7 +60,8 @@ func loadFiles(config Config) ([]*os.File, error) {
 		piece := handleRarity(config.Rarity[file])
 		// We need to add the randomness logic here.
 		if piece != "nil" {
-			reader, err := os.Open(fmt.Sprintf("rat-parts_%s-%s.png", file, piece))
+			filename := fmt.Sprintf(config.Filename, file, piece)
+			reader, err := os.Open(fmt.Sprintf("%s/%s", config.Pathname, filename))
 			if err != nil {
 				return nil, handleError(err, exit)
 			}
