@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 80,
+  "output-image-count": 50,
   "attributes": {
     "accessory": {
       "nil": {
@@ -214,6 +214,11 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "tiny": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "xx": {
         "rarity": 2,
         "cuteness": 0,
@@ -289,6 +294,21 @@
         "rattitude": 0
       },
       "ballcap-backwards-blue-yellow": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "ballcap-backwards-black": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "football-old": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "paperbag-brown": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
