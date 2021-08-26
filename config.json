@@ -271,7 +271,23 @@
         "cuteness": 0,
         "rattitude": 0
       },
-      "shades-roung-black": {
+      "shades-round-black": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "shades-cat-black": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      }
+      ,
+      "shades-wayfarer-black": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "wire-black": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -354,6 +370,21 @@
     "markings": {
       "nil": {
         "rarity": 5,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "dark-face-side": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "dark-spot": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "dark-star": {
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -461,6 +492,46 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "t-cat": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-cheese": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-happy": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-heart": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-heart-small": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-peace": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-trashcan": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "t-unicorn": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "tube-blue": {
         "rarity": 3,
         "cuteness": 0,
@@ -519,6 +590,11 @@
         "rattitude": 0
       },
       "tongue-out-gold-tooth": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "smile-gold-grill": {
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
