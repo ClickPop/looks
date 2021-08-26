@@ -40,16 +40,31 @@
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
+      },
+      "can-soup": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
       }
     },
     "background": {
-      "blue-tie-dye": {
+      "dark-tie-dye": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
-      "dark-tie-dye": {
+      "yellow-tie-dye": {
         "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "yellow-noise": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "yellow": {
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -59,6 +74,11 @@
         "rattitude": 0
       },
       "green-tie-dye": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "blue-tie-dye": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -199,6 +219,11 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "normal-wink": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "round": {
         "rarity": 2,
         "cuteness": 0,
@@ -215,7 +240,7 @@
         "rattitude": 0
       },
       "tiny": {
-        "rarity": 3,
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -309,6 +334,11 @@
         "rattitude": 0
       },
       "paperbag-brown": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "sweatband-blue-white": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -438,6 +468,11 @@
       },
       "tube-pink": {
         "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "garbage-bag": {
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       }
