@@ -3,8 +3,8 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 50,
-  "max-workers": 0,
+  "output-image-count": 100,
+  "max-workers": 3,
   "attributes": {
     "accessory": {
       "nil": {

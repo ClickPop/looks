@@ -2,19 +2,23 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
+	"io"
+	"io/fs"
 	"io/ioutil"
-	"math"
+	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
-
-	"github.com/pbnjay/memory"
 )
 
 var wg sync.WaitGroup
@@ -63,9 +67,10 @@ func main() {
 	num_workers := config.MaxWorkers
 
 	if num_workers == 0 {
-		num_workers = math.Max(float64(memory.TotalMemory() / 1024.0 / 1024.0 / 1024.0 / 4), float64(1))
+		num_workers = 3
 	}
-
+	
+	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
 		wg.Add(1)
 		go makeFile(jobs)
@@ -77,24 +82,25 @@ func main() {
 	close(jobs)
 
 	wg.Wait()
-	fmt.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()));
+	log.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()));
+	checkHashes()
 }
 
 func makeFile(jobs <-chan Job)  {
 	for job := range jobs {
 		config := job.config
 		i := job.id
-		fmt.Printf("Loading files for image #%d\n", i)
+		log.Printf("Loading files for image #%d\n", i)
 		files, metadata, err := loadFiles(config)
 		handleError(err)
-		fmt.Printf("Decoding data for image #%d\n", i)
+		log.Printf("Decoding data for image #%d\n", i)
 		images, err := getImages(files)
 		handleError(err)
 
 		rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
 		img := image.NewRGBA(rect)
 		origin := image.Point{0, 0}
-		fmt.Printf("Layering assets for image #%d\n", i)
+		log.Printf("Layering assets for image #%d\n", i)
 		for i := 0; i < len(images); i++ {
 			currImg := images[i]
 			if i == 0 {
@@ -108,7 +114,7 @@ func makeFile(jobs <-chan Job)  {
 		handleError(err)
 		png.Encode(out, img)
 		out.Close()
-		fmt.Printf("Image #%d.png created\n", i)
+		log.Printf("Image #%d.png created\n", i)
 		var finalMeta FinalData
 		finalMeta.Pieces = make(map[string]string, len(metadata))
 		for j := 0; j < len(metadata); j++ {
@@ -122,7 +128,7 @@ func makeFile(jobs <-chan Job)  {
 		handleError(err)
 		err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
 		handleError(err)
-		fmt.Printf("Metadata #%d.json created\n", i)
+		log.Printf("Metadata #%d.json created\n", i)
 	}
 	wg.Done()
 }
@@ -180,7 +186,7 @@ func getImages(files []bytes.Reader) ([]image.Image, error) {
 
 func handleError(err error, callbacks ...func(err error) error) error {
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln(err)
 		for i := 0; i < len(callbacks); i++ {
 			callback := callbacks[i]
 			val := callback(err)
@@ -204,4 +210,31 @@ func loadJSON() (Config, error) {
 	err = json.Unmarshal(data, &config)
 	handleError(err)
 	return config, handleError(err)
+}
+
+func checkHashes() {
+	hashes := make(map[string]string)
+	log.Println("Checking hashes for collisions...")
+	filepath.WalkDir("rats", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil;
+		}
+
+		if strings.Contains(d.Name(), ".png") {
+			data, _ := os.ReadFile(path)
+			reader := bytes.NewReader(data)
+			hasher := md5.New()
+			_, err := io.Copy(hasher, reader); if err != nil {
+				log.Fatal(err)
+			}
+			hash := hex.EncodeToString(hasher.Sum(nil))
+			if hashes[hash] != "" {
+				log.Fatal("COLLISION", hashes[hash], path)
+				os.Exit(1)
+			}
+			hashes[hash] = path
+		}
+		return err
+	})
+	log.Println("All hashes unique")
 }
