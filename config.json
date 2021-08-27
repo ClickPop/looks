@@ -1,9 +1,9 @@
 {
-  "piece-order": ["background", "tail", "ears", "color", "markings", "head", "snout", "torso", "shirt", "eyes", "accessory", "hat", "pet"],
+  "piece-order": ["background", "tail", "ears", "color", "markings", "head", "snout", "torso", "shirt", "eyes", "glasses", "accessory", "hat", "pet"],
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 100,
+  "output-image-count": 250,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -263,7 +263,7 @@
     },
     "glasses": {
       "nil": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -281,8 +281,7 @@
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
-      }
-      ,
+      },
       "shades-wayfarer-black": {
         "rarity": 1,
         "cuteness": 0,
