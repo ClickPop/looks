@@ -292,6 +292,21 @@
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
+      },
+      "monocle-gold": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "robot": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "visor": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
       }
     },
     "hat": {
@@ -458,6 +473,16 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "hoodie-black": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "hoodie-short-black": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "robot-shirt": {
         "rarity": 1,
         "cuteness": 0,
@@ -596,6 +621,16 @@
         "rattitude": 0
       },
       "smile-gold-grill": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "neutral": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "neutral-lipstick-red": {
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
