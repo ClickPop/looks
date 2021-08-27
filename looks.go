@@ -9,11 +9,9 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"sync"
 	"time"
 )
 
-var wg sync.WaitGroup
 type Config struct {
 	PieceOrder []string `json:"piece-order,omitempty"`
 	Filename string `json:"filename,omitempty"`
@@ -41,11 +39,13 @@ func main() {
 	if err != nil {
 		handleError(err, exit)
 	}
-	for i := 0; i < int(config.OutputImageCount); i++ {
-		wg.Add(1)
-		go makeFile(config, i)
+	_, err = os.Stat(config.OutputDirectory)
+	if os.IsNotExist(err) {
+		os.Mkdir(config.OutputDirectory, 0777)
 	}
-	wg.Wait()
+	for i := 0; i < int(config.OutputImageCount); i++ {
+		makeFile(config, i)
+	}
 	fmt.Printf("Generated %d files in directory %s\n", int(config.OutputImageCount), config.OutputDirectory);
 }
 
@@ -88,7 +88,6 @@ func makeFile(config Config, i int)  {
 	err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
 	handleError(err)
 	fmt.Printf("Metadata #%d.json created\n", i)
-	wg.Done()
 }
 
 func loadFiles(config Config) ([]*os.File, []Metadata, error) {
