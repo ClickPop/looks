@@ -1,16 +1,23 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
 	"io/ioutil"
+	"math"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
+
+	"github.com/pbnjay/memory"
 )
+
+var wg sync.WaitGroup
 
 type Config struct {
 	PieceOrder []string `json:"piece-order,omitempty"`
@@ -19,6 +26,7 @@ type Config struct {
 	OutputDirectory string `json:"output-directory,omitempty"`
 	OutputImageCount float64 `json:"output-image-count,omitempty"`
 	Attributes map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
+	MaxWorkers float64 `json:"max-workers,omitempty"`
 }
 
 type Metadata struct {
@@ -34,7 +42,13 @@ type FinalData struct {
 	Rattitude int `json:"rattitude"`
 }
 
+type Job struct {
+	id int
+	config Config
+}
+
 func main() {
+	startTime := time.Now()
 	config, err := loadJSON();
 	if err != nil {
 		handleError(err, exit)
@@ -43,67 +57,90 @@ func main() {
 	if os.IsNotExist(err) {
 		os.Mkdir(config.OutputDirectory, 0777)
 	}
+	
+	jobs := make(chan Job, int(config.OutputImageCount))
+
+	num_workers := config.MaxWorkers
+
+	if num_workers == 0 {
+		num_workers = math.Max(float64(memory.TotalMemory() / 1024.0 / 1024.0 / 1024.0 / 4), float64(1))
+	}
+
+	for w := 0; w < int(num_workers); w++ {
+		wg.Add(1)
+		go makeFile(jobs)
+	}
+
 	for i := 0; i < int(config.OutputImageCount); i++ {
-		makeFile(config, i)
+		jobs <- Job{i, config}
 	}
-	fmt.Printf("Generated %d files in directory %s\n", int(config.OutputImageCount), config.OutputDirectory);
+	close(jobs)
+
+	wg.Wait()
+	fmt.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()));
 }
 
-func makeFile(config Config, i int)  {
-	fmt.Printf("Loading files for image #%d\n", i)
-	files, metadata, err := loadFiles(config)
-	handleError(err)
-	fmt.Printf("Decoding data for image #%d\n", i)
-	images, err := getImages(files)
-	handleError(err)
+func makeFile(jobs <-chan Job)  {
+	for job := range jobs {
+		config := job.config
+		i := job.id
+		fmt.Printf("Loading files for image #%d\n", i)
+		files, metadata, err := loadFiles(config)
+		handleError(err)
+		fmt.Printf("Decoding data for image #%d\n", i)
+		images, err := getImages(files)
+		handleError(err)
 
-	rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
-	img := image.NewRGBA(rect)
-	origin := image.Point{0, 0}
-	fmt.Printf("Layering assets for image #%d\n", i)
-	for i := 0; i < len(images); i++ {
-		currImg := images[i]
-		if i == 0 {
-			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
-		} else {
-			draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
+		rect := image.Rectangle{images[1].Bounds().Min, images[1].Bounds().Max}
+		img := image.NewRGBA(rect)
+		origin := image.Point{0, 0}
+		fmt.Printf("Layering assets for image #%d\n", i)
+		for i := 0; i < len(images); i++ {
+			currImg := images[i]
+			if i == 0 {
+				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Src)
+			} else {
+				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
+			}
 		}
-	}
 
-	out, err := os.Create(fmt.Sprintf("%s/%d.png", config.OutputDirectory, i))
-	handleError(err)
-	png.Encode(out, img)
-	fmt.Printf("Image #%d.png created\n", i)
-	var finalMeta FinalData
-	finalMeta.Pieces = make(map[string]string, len(metadata))
-	for j := 0; j < len(metadata); j++ {
-		currMeta := metadata[j]
-		finalMeta.Pieces[currMeta.Type] = currMeta.Piece
-		finalMeta.Rarity += int(currMeta.Attributes["rarity"])
-		finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
-		finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
+		out, err := os.Create(fmt.Sprintf("%s/%d.png", config.OutputDirectory, i))
+		handleError(err)
+		png.Encode(out, img)
+		out.Close()
+		fmt.Printf("Image #%d.png created\n", i)
+		var finalMeta FinalData
+		finalMeta.Pieces = make(map[string]string, len(metadata))
+		for j := 0; j < len(metadata); j++ {
+			currMeta := metadata[j]
+			finalMeta.Pieces[currMeta.Type] = currMeta.Piece
+			finalMeta.Rarity += int(currMeta.Attributes["rarity"])
+			finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
+			finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
+		}
+		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
+		handleError(err)
+		err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
+		handleError(err)
+		fmt.Printf("Metadata #%d.json created\n", i)
 	}
-	jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
-	handleError(err)
-	err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
-	handleError(err)
-	fmt.Printf("Metadata #%d.json created\n", i)
+	wg.Done()
 }
 
-func loadFiles(config Config) ([]*os.File, []Metadata, error) {
+func loadFiles(config Config) ([]bytes.Reader, []Metadata, error) {
 	fileNames := config.PieceOrder
-	var files []*os.File
+	var files []bytes.Reader
 	var metadata []Metadata
 	for i := 0; i < len(fileNames); i++ {
 		file := fileNames[i]
 		piece, meta := handleRarity(config.Attributes[file])
 		if piece != "nil" {
 			filename := fmt.Sprintf(config.Filename, file, piece)
-			reader, err := os.Open(fmt.Sprintf("%s/%s", config.Pathname, filename))
+			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Pathname, filename))
 			if err != nil {
 				return nil, nil, handleError(err, exit)
 			}
-			files = append(files, reader)
+			files = append(files, *bytes.NewReader(data))
 			metadata = append(metadata, Metadata{Type: file, Piece: piece, Attributes: meta})
 		}
 	}
@@ -129,10 +166,10 @@ func handleRarity(pieceTypes map[string]map[string]float64) (string, map[string]
 	return choice, pieceTypes[choice]
 }
 
-func getImages(files []*os.File) ([]image.Image, error) {
+func getImages(files []bytes.Reader) ([]image.Image, error) {
 	var images []image.Image
 	for i := 0; i < len(files); i++ {
-		img, err := png.Decode(files[i])
+		img, err := png.Decode(&files[i])
 		if err != nil {
 			return nil, handleError(err, exit)
 		}
@@ -168,16 +205,3 @@ func loadJSON() (Config, error) {
 	handleError(err)
 	return config, handleError(err)
 }
-
-// func parseRarity(rarity map[string]interface{}, callbacks ...func(rarity float64)) {
-// 	for _, val := range rarity {
-// 		if reflect.TypeOf(val) == reflect.TypeOf(make(map[string]interface{})) {
-// 			parseRarity(val.(map[string]interface{}), callbacks...)
-// 		} else if  {
-// 			for i := 0; i < len(callbacks); i++ {
-// 				callback := callbacks[i]
-// 				callback(val.(float64))
-// 			}
-// 		}
-// 	}
-// }
