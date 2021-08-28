@@ -3,12 +3,12 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 250,
+  "output-image-count": 24,
   "max-workers": 3,
   "attributes": {
     "accessory": {
       "nil": {
-        "rarity": 5,
+        "rarity": 18,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -18,17 +18,17 @@
         "rattitude": 0
       },
       "earring-nosering-gold": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "medalion-gold": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "nosering-gold": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -117,12 +117,12 @@
         "rattitude": 0
       },
       "blue-light": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "blue": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -132,22 +132,22 @@
         "rattitude": 0
       },
       "gray-light": {
-        "rarity": 3,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
       "gray": {
-        "rarity": 3,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
       "gray-dark": {
-        "rarity": 3,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
       "red-light": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -160,21 +160,26 @@
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
+      },
+      "striped-black-and-white": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
       }
     },
     "ears": {
       "normal-pink": {
-        "rarity": 4,
+        "rarity": 8,
         "cuteness": 0,
         "rattitude": 0
       },
       "torn-pink": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "normal-maroon": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -184,7 +189,7 @@
         "rattitude": 0
       },
       "normal-mauve": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -201,22 +206,22 @@
         "rattitude": 0
       },
       "happy": {
-        "rarity": 3,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "happy-lashes": {
-        "rarity": 3,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "normal": {
-        "rarity": 5,
+        "rarity": 10,
         "cuteness": 0,
         "rattitude": 0
       },
       "normal-lashes": {
-        "rarity": 5,
+        "rarity": 10,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -226,12 +231,12 @@
         "rattitude": 0
       },
       "round": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "round-stressed": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -241,12 +246,12 @@
         "rattitude": 0
       },
       "tiny": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "xx": {
-        "rarity": 2,
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -256,39 +261,39 @@
         "rattitude": 0
       },
       "zombie-white": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       }
     },
     "glasses": {
       "nil": {
-        "rarity": 8,
+        "rarity": 18,
         "cuteness": 0,
         "rattitude": 0
       },
       "round-gold": {
-        "rarity": 2,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-round-black": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-cat-black": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-wayfarer-black": {
-        "rarity": 2,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "wire-black": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -310,22 +315,22 @@
     },
     "hat": {
       "nil": {
-        "rarity": 5,
+        "rarity": 18,
         "cuteness": 0,
         "rattitude": 0
       },
       "ballcap-black-yellow": {
-        "rarity": 3,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "ballcap-blue-green-white": {
-        "rarity": 3,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "halo": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -350,12 +355,12 @@
         "rattitude": 0
       },
       "ballcap-backwards-blue-yellow": {
-        "rarity": 1,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "ballcap-backwards-black": {
-        "rarity": 2,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -370,7 +375,12 @@
         "rattitude": 0
       },
       "sweatband-blue-white": {
-        "rarity": 1,
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "straw": {
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       }
@@ -384,7 +394,7 @@
     },
     "markings": {
       "nil": {
-        "rarity": 5,
+        "rarity": 10,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -394,7 +404,7 @@
         "rattitude": 0
       },
       "dark-spot": {
-        "rarity": 2,
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -409,12 +419,12 @@
         "rattitude": 0
       },
       "white-spot": {
-        "rarity": 3,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "white-star": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -426,22 +436,22 @@
     },
     "pet": {
       "nil": {
-        "rarity": 6,
+        "rarity": 18,
         "cuteness": 0,
         "rattitude": 0
       },
       "caterpillar-green": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "worm-pink": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "axolotl-pink": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -451,7 +461,7 @@
         "rattitude": 0
       },
       "pinata": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -463,47 +473,57 @@
     },
     "shirt": {
       "nil": {
-        "rarity": 4,
+        "rarity": 24,
         "cuteness": 0,
         "rattitude": 0
       },
       "button-denim": {
-        "rarity": 2,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
       "buttondown-ripped-purple": {
-        "rarity": 2,
-        "cuteness": 0,
-        "rattitude": 0
-      },
-      "buttondown-ripped-white": {
-        "rarity": 2,
-        "cuteness": 0,
-        "rattitude": 0
-      },
-      "button-rainbow": {
-        "rarity": 2,
-        "cuteness": 0,
-        "rattitude": 0
-      },
-      "button-white-tie": {
         "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
-      "crop-pink": {
+      "buttondown-ripped-white": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "button-rainbow": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "button-white-tie": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "button-gingham-overalls": {
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
+      "crop-pink": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "hoodie-black": {
-        "rarity": 1,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "hoodie-short-black": {
-        "rarity": 1,
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "overalls": {
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -513,27 +533,27 @@
         "rattitude": 0
       },
       "tank-white": {
-        "rarity": 2,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
       "tank-black": {
-        "rarity": 2,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-pizza": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-rainbow": {
-        "rarity": 2,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-white": {
-        "rarity": 3,
+        "rarity": 6,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -543,47 +563,47 @@
         "rattitude": 0
       },
       "t-cat": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-cheese": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-happy": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-heart": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-heart-small": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-peace": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-trashcan": {
-        "rarity": 3,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "t-unicorn": {
-        "rarity": 3,
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
       "tube-blue": {
-        "rarity": 3,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -610,32 +630,37 @@
         "rattitude": 0
       },
       "lipstick-red": {
-        "rarity": 3,
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
       "one-tooth": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "scream": {
-        "rarity": 2,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "smile": {
-        "rarity": 4,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "smile-big": {
-        "rarity": 4,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
       "smile-wonky": {
-        "rarity": 2,
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "straw": {
+        "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -650,12 +675,12 @@
         "rattitude": 0
       },
       "neutral": {
-        "rarity": 2,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "neutral-lipstick-red": {
-        "rarity": 2,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       }
@@ -672,7 +697,7 @@
         "rattitude": 0
       },
       "normal-pink": {
-        "rarity": 6,
+        "rarity": 8,
         "cuteness": 0,
         "rattitude": 0
       },
