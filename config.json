@@ -263,27 +263,27 @@
     },
     "glasses": {
       "nil": {
-        "rarity": 2,
+        "rarity": 8,
         "cuteness": 0,
         "rattitude": 0
       },
       "round-gold": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-round-black": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-cat-black": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
       "shades-wayfarer-black": {
-        "rarity": 1,
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -469,6 +469,11 @@
       },
       "button-white-tie": {
         "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },,
+      "crop-pink": {
+        "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
       },
