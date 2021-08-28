@@ -439,6 +439,26 @@
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
+      },
+      "axolotl-pink": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "axolotl-blue": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "pinata": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "cool-bee": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
       }
     },
     "shirt": {
