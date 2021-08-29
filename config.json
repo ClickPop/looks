@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 99,
+  "output-image-count": 299,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -43,6 +43,11 @@
         "rattitude": 0
       },
       "can-soup": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "toucan": {
         "rarity": 1,
         "cuteness": 0,
         "rattitude": 0
@@ -436,11 +441,6 @@
       },
       "unicorn-horn": {
         "rarity": 4,
-        "cuteness": 0,
-        "rattitude": 0
-      },
-      "toucan": {
-        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       }
