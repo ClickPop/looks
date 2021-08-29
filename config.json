@@ -440,10 +440,10 @@
         "rattitude": 0
       },
       "toucan": {
-        "rarity": 1,
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
-      },
+      }
     },
     "head": {
       "base": {
