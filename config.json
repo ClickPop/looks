@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 24,
+  "output-image-count": 99,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -330,12 +330,17 @@
     },
     "hat": {
       "nil": {
-        "rarity": 18,
+        "rarity": 24,
         "cuteness": 0,
         "rattitude": 0
       },
       "ballcap-black-yellow": {
         "rarity": 5,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "ballcap-red-white": {
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -389,6 +394,11 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "ballcap-backwards-red": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "football-old": {
         "rarity": 1,
         "cuteness": 0,
@@ -400,6 +410,11 @@
         "rattitude": 0
       },
       "sweatband-blue-white": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "sweatband-red-white": {
         "rarity": 2,
         "cuteness": 0,
         "rattitude": 0
