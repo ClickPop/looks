@@ -354,6 +354,16 @@
         "cuteness": 0,
         "rattitude": 0
       },
+      "bucket-blue": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "bucket-white": {
+        "rarity": 3,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "crown": {
         "rarity": 4,
         "cuteness": 0,
@@ -428,7 +438,12 @@
         "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
-      }
+      },
+      "toucan": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
     },
     "head": {
       "base": {
