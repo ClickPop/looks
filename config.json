@@ -49,6 +49,16 @@
       }
     },
     "background": {
+      "tie-dye": {
+        "rarity": 1,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "dark": {
+        "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
       "dark-tie-dye": {
         "rarity": 1,
         "cuteness": 0,
@@ -96,6 +106,11 @@
       },
       "light-yellow-noise": {
         "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "peach": {
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       },
@@ -320,11 +335,21 @@
         "rattitude": 0
       },
       "ballcap-black-yellow": {
-        "rarity": 4,
+        "rarity": 5,
         "cuteness": 0,
         "rattitude": 0
       },
       "ballcap-blue-green-white": {
+        "rarity": 4,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "bucket-white": {
+        "rarity": 6,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "crown": {
         "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
@@ -381,6 +406,11 @@
       },
       "straw": {
         "rarity": 2,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "unicorn-horn": {
+        "rarity": 4,
         "cuteness": 0,
         "rattitude": 0
       }
@@ -681,6 +711,11 @@
       },
       "neutral-lipstick-red": {
         "rarity": 5,
+        "cuteness": 0,
+        "rattitude": 0
+      },
+      "whistle": {
+        "rarity": 3,
         "cuteness": 0,
         "rattitude": 0
       }
