@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 33,
+  "output-image-count": 50,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -98,31 +98,31 @@
         "rattitude": 1
       },
       "blue-light": {
-        "rarity": 3
+        "rarity": 13
       },
       "blue": {
-        "rarity": 2
-      },
-      "blue-dark": {
-        "rarity": 2
-      },
-      "gray-light": {
-        "rarity": 6
-      },
-      "gray": {
-        "rarity": 6
-      },
-      "gray-dark": {
-        "rarity": 6
-      },
-      "red-light": {
         "rarity": 3
       },
+      "blue-dark": {
+        "rarity": 5
+      },
+      "gray-light": {
+        "rarity": 21
+      },
+      "gray": {
+        "rarity": 21
+      },
+      "gray-dark": {
+        "rarity": 21
+      },
+      "red-light": {
+        "rarity": 13
+      },
       "red": {
-        "rarity": 1
+        "rarity": 3
       },
       "red-dark": {
-        "rarity": 2
+        "rarity": 5
       },
       "stripe-black-and-white": {
         "rarity": 1,
