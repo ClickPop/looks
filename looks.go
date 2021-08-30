@@ -42,6 +42,7 @@ type Metadata struct {
 type FinalData struct {
 	Pieces map[string]string `json:"pieces"`
 	Rarity int `json:"rarity"`
+	Cunning int `json:"cunning"`
 	Cuteness int `json:"cuteness"`
 	Rattitude int `json:"rattitude"`
 }
@@ -61,7 +62,7 @@ func main() {
 	if os.IsNotExist(err) {
 		os.Mkdir(config.OutputDirectory, 0777)
 	}
-	
+
 	jobs := make(chan Job, int(config.OutputImageCount))
 
 	num_workers := config.MaxWorkers
@@ -69,7 +70,7 @@ func main() {
 	if num_workers == 0 {
 		num_workers = 3
 	}
-	
+
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
 		wg.Add(1)
@@ -121,6 +122,7 @@ func makeFile(jobs <-chan Job)  {
 			currMeta := metadata[j]
 			finalMeta.Pieces[currMeta.Type] = currMeta.Piece
 			finalMeta.Rarity += int(currMeta.Attributes["rarity"])
+			finalMeta.Cunning += int(currMeta.Attributes["cunning"])
 			finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
 			finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
 		}

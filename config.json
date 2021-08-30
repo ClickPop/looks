@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 299,
+  "output-image-count": 24,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -177,7 +177,9 @@
       },
       "round-stressed": {
         "rarity": 2,
-        "cunning": 1
+        "cunning": -1,
+        "cuteness": -1,
+        "rattitude": -1
       },
       "sleeping": {
         "rarity": 3,
@@ -412,7 +414,8 @@
       },
       "button-gingham-overalls": {
         "rarity": 2,
-        "cuteness": 1
+        "cuteness": 1,
+        "rattitude": -1
       },
       "crop-pink": {
         "rarity": 4,
