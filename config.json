@@ -83,11 +83,17 @@
       "peach": {
         "rarity": 3
       },
+      "peach-tie-dye": {
+        "rarity": 1
+      },
       "red": {
         "rarity": 3
       },
       "red-noise": {
         "rarity": 2
+      },
+      "red-tie-dye": {
+        "rarity": 1
       }
     },
     "color": {
