@@ -501,7 +501,9 @@
       },
       "garbage-bag": {
         "rarity": 2,
-        "rattitude": 2
+        "cunning": -1,
+        "cuteness": -1,
+        "rattitude": -1
       }
     },
     "snout": {
