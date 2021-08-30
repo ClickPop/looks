@@ -18,7 +18,7 @@
         "rarity": 2,
         "rattitude": 1
       },
-      "medalion-gold": {
+      "medallion-gold": {
         "rarity": 3,
         "rattitude": 1
       },
@@ -445,49 +445,49 @@
         "rarity": 4,
         "rattitude": 1
       },
-      "t-pizza": {
+      "tee-pizza": {
         "rarity": 2,
         "rattitude": 2
       },
-      "t-rainbow": {
+      "tee-rainbow": {
         "rarity": 2,
         "cuteness": 2
       },
-      "t-white": {
+      "tee-white": {
         "rarity": 6
       },
-      "t-white-blue": {
+      "tee-white-blue": {
         "rarity": 3
       },
-      "t-cat": {
+      "tee-cat": {
         "rarity": 2,
         "cuteness": 1
       },
-      "t-cheese": {
+      "tee-cheese": {
         "rarity": 2,
         "rattitude": 1
       },
-      "t-happy": {
+      "tee-happy": {
         "rarity": 2,
         "cuteness": 1
       },
-      "t-heart": {
+      "tee-heart": {
         "rarity": 2,
         "cuteness": 1
       },
-      "t-heart-small": {
+      "tee-heart-small": {
         "rarity": 2,
         "cuteness": 1
       },
-      "t-peace": {
+      "tee-peace": {
         "rarity": 2,
         "cunning": 1
       },
-      "t-trashcan": {
+      "tee-trashcan": {
         "rarity": 2,
         "cunning": 1
       },
-      "t-unicorn": {
+      "tee-unicorn": {
         "rarity": 1,
         "cunning": 1,
         "cuteness": 1,
