@@ -44,55 +44,94 @@
       }
     },
     "background": {
-      "tie-dye": {
-        "rarity": 1
-      },
       "dark": {
-        "rarity": 2
+        "rarity": 6
       },
-      "dark-tie-dye": {
-        "rarity": 1
+      "blue": {
+        "rarity": 4
       },
-      "yellow-tie-dye": {
-        "rarity": 1
+      "green": {
+        "rarity": 6
       },
-      "yellow-noise": {
-        "rarity": 2
+      "light-blue": {
+        "rarity": 6
       },
-      "yellow": {
+      "light-gray": {
         "rarity": 3
       },
-      "green-noise": {
-        "rarity": 2
+      "orange": {
+        "rarity": 6
       },
-      "green-tie-dye": {
+      "peach": {
+        "rarity": 6
+      },
+      "purple": {
+        "rarity": 6
+      },
+      "red": {
+        "rarity": 3
+      },
+      "yellow": {
+        "rarity": 6
+      },
+      "tie-dye": {
         "rarity": 1
       },
       "blue-tie-dye": {
         "rarity": 1
       },
-      "light-blue": {
-        "rarity": 3
+      "brown-tie-dye": {
+        "rarity": 1
       },
-      "light-blue-noise": {
-        "rarity": 2
+      "dark-tie-dye": {
+        "rarity": 1
       },
-      "light-yellow-noise": {
-        "rarity": 2
+      "green-tie-dye": {
+        "rarity": 1
       },
-      "peach": {
-        "rarity": 3
+      "light-blue-tie-dye": {
+        "rarity": 1
+      },
+      "light-gray-tie-dye": {
+        "rarity": 1
+      },
+      "orange-tie-dye": {
+        "rarity": 1
       },
       "peach-tie-dye": {
         "rarity": 1
       },
-      "red": {
-        "rarity": 3
-      },
-      "red-noise": {
-        "rarity": 2
+      "purple-tie-dye": {
+        "rarity": 1
       },
       "red-tie-dye": {
+        "rarity": 1
+      },
+      "yellow-tie-dye": {
+        "rarity": 1
+      },
+      "green-noise": {
+        "rarity": 1
+      },
+      "light-blue-noise": {
+        "rarity": 1
+      },
+      "light-gray-noise": {
+        "rarity": 1
+      },
+      "light-yellow-noise": {
+        "rarity": 1
+      },
+      "peach-noise": {
+        "rarity": 1
+      },
+      "purple-noise": {
+        "rarity": 1
+      },
+      "red-noise": {
+        "rarity": 1
+      },
+      "yellow-noise": {
         "rarity": 1
       }
     },
