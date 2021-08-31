@@ -75,40 +75,54 @@
         "rarity": 6
       },
       "tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cunning": 1,
+        "cuteness": 1,
+        "rattitude": 1
       },
       "blue-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cuteness": 1
       },
       "brown-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cunning": 1
       },
       "dark-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cunning": 1
       },
       "green-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "rattitude": 1
       },
       "light-blue-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cuteness": 1
       },
       "light-gray-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cuteness": 1
       },
       "orange-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "rattitude": 1
       },
       "peach-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cuteness": 1
       },
       "purple-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "rattitude": 1
       },
       "red-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "rattitude": 1
       },
       "yellow-tie-dye": {
-        "rarity": 1
+        "rarity": 1,
+        "cunning": 1
       },
       "green-noise": {
         "rarity": 1
@@ -143,31 +157,40 @@
         "rattitude": 1
       },
       "blue-light": {
-        "rarity": 13
+        "rarity": 13,
+        "cuteness": 1
       },
       "blue": {
-        "rarity": 3
+        "rarity": 3,
+        "rattitude": 1
       },
       "blue-dark": {
-        "rarity": 5
+        "rarity": 5,
+        "cunning": 1
       },
       "gray-light": {
-        "rarity": 21
+        "rarity": 21,
+        "cuteness": 1
       },
       "gray": {
-        "rarity": 21
+        "rarity": 21,
+        "rattitude": 1
       },
       "gray-dark": {
-        "rarity": 21
+        "rarity": 21,
+        "cunning": 1
       },
       "red-light": {
-        "rarity": 13
+        "rarity": 13,
+        "cuteness": 1
       },
       "red": {
-        "rarity": 3
+        "rarity": 3,
+        "rattitude": 1
       },
       "red-dark": {
-        "rarity": 5
+        "rarity": 5,
+        "cunning": 1
       },
       "stripe-black-and-white": {
         "rarity": 1,
@@ -178,19 +201,13 @@
     },
     "ears": {
       "torn-pink": {
-        "rarity": 3,
-        "cuteness": 0,
-        "rattitude": 0
+        "rarity": 3
       },
       "torn-maroon": {
-        "rarity": 1,
-        "cuteness": 0,
-        "rattitude": 0
+        "rarity": 1
       },
       "torn-mauve": {
-        "rarity": 1,
-        "cuteness": 0,
-        "rattitude": 0
+        "rarity": 1
       }
     },
     "eyes": {
@@ -217,8 +234,8 @@
         "cunning": 1
       },
       "round": {
-        "rarity": 3,
-        "cuteness": 1
+        "rarity": 2,
+        "cuteness": 2
       },
       "round-stressed": {
         "rarity": 2,
@@ -235,15 +252,15 @@
       },
       "xx": {
         "rarity": 1,
-        "rattitude": 1
+        "rattitude": 2
       },
       "zombie-red": {
         "rarity": 1,
-        "rattitude": 1
+        "rattitude": 2
       },
       "zombie-white": {
-        "rarity": 3,
-        "cunning": 1
+        "rarity": 2,
+        "cunning": 2
       }
     },
     "glasses": {
@@ -278,7 +295,7 @@
       },
       "robot": {
         "rarity": 1,
-        "cunning": 0
+        "cunning": 2
       },
       "visor": {
         "rarity": 1,
