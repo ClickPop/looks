@@ -263,5 +263,58 @@ func (c *Config) buildDescription(meta FinalData) string {
 		primaryStat = "rattitude"
 	}
 
-	return fmt.Sprintf("%s", c.DescriptionData[primaryStat].Name)
+	randomDescriptor := getRandomDescriptor(c.DescriptionData[primaryStat].Descriptors)
+	randomHobbies := getRandomHobbies(c.DescriptionData[primaryStat].Hobbies, 3)
+	ratType := c.DescriptionData[primaryStat].Name
+
+	return fmt.Sprintf("This little rat is a %s, that means %s. Their favorite hobbies include %s.", ratType, randomDescriptor, randomHobbies)
+}
+
+func getRandomDescriptor(descriptors []string) string {
+	rand.Seed(time.Now().Unix() + int64(time.Now().Nanosecond()))
+	return descriptors[rand.Intn(len(descriptors))]
+}
+
+func getRandomHobbies(hobbies []string, n int) string {
+	rand.Seed(time.Now().Unix() + int64(time.Now().Nanosecond()))
+	var randomHobbies []string
+
+	if len(hobbies) < n {
+		n = len(hobbies)
+	}
+
+	for len(randomHobbies) < n {
+		tempHobby := hobbies[rand.Intn(len(hobbies))]
+		if !contains(randomHobbies, tempHobby) {
+			randomHobbies = append(randomHobbies, tempHobby)
+		}
+	}
+
+	return oxfordJoin(randomHobbies)
+}
+
+func contains(slice []string, haystack string) bool {
+	rVal := false
+
+	for _, v := range slice {
+		if v == haystack {
+			rVal = true
+		}
+	}
+
+	return rVal
+}
+
+func oxfordJoin(slice []string) string {
+	outStr := ""
+
+	if len(slice) == 1 {
+		outStr = slice[0]
+	} else if len(slice) == 2 {
+		outStr = strings.Join(slice, " and ")
+	} else if len(slice) > 2 {
+		outStr = strings.Join(slice[0:(len(slice)-1)], ", ") + ", and " + slice[len(slice)-1]
+	}
+
+	return outStr
 }
