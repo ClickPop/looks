@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 50,
+  "output-image-count": 10,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -654,9 +654,8 @@
       }
     }
   },
-  "description-data": [
-    {
-      "primary-stat": "cunning",
+  "description-data": {
+    "cunning": {
       "id": "lab-rat",
       "name": "Lab Rat",
       "descriptors": [
@@ -683,8 +682,7 @@
         "writing letters to the editor"
       ]
     },
-    {
-      "primary-stat": "cuteness",
+    "cuteness": {
       "id": "pet-rat",
       "name": "Pet Rat",
       "descriptors": [
@@ -711,8 +709,7 @@
         "bundling up in cozy blankets"
       ]
     },
-    {
-      "primary-stat": "rattitude",
+    "rattitude": {
       "id": "street-rat",
       "name": "Street Rat",
       "descriptors": [
@@ -737,8 +734,7 @@
         "stealing candy from babies"
       ]
     },
-    {
-      "primary-stat": "default",
+    "default": {
       "id": "pack-rat",
       "name": "Pack Rat",
       "descriptors": [
@@ -762,5 +758,5 @@
         "snoozing in a hammock made from a banana peel"
       ]
     }
-  ]
+  }
 }

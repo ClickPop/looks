@@ -31,7 +31,7 @@ type Config struct {
 	OutputImageCount float64                                  `json:"output-image-count,omitempty"`
 	Attributes       map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
 	MaxWorkers       float64                                  `json:"max-workers,omitempty"`
-	DescriptionData  []DescriptionData                        `json:"description-data,omitempty"`
+	DescriptionData  map[string]DescriptionData               `json:"description-data,omitempty"`
 }
 
 type Metadata struct {
@@ -41,15 +41,15 @@ type Metadata struct {
 }
 
 type FinalData struct {
-	Pieces    map[string]string `json:"pieces"`
-	Rarity    int               `json:"rarity"`
-	Cunning   int               `json:"cunning"`
-	Cuteness  int               `json:"cuteness"`
-	Rattitude int               `json:"rattitude"`
+	Pieces      map[string]string `json:"pieces"`
+	Rarity      int               `json:"rarity"`
+	Cunning     int               `json:"cunning"`
+	Cuteness    int               `json:"cuteness"`
+	Rattitude   int               `json:"rattitude"`
+	Description string            `json:"description"`
 }
 
 type DescriptionData struct {
-	PrimaryStat string   `json:"primary-stat,omitempty"`
 	ID          string   `json:"id,omitempty"`
 	Name        string   `json:"name,omitempty"`
 	Descriptors []string `json:"descriptors,omitempty"`
@@ -135,6 +135,7 @@ func makeFile(jobs <-chan Job) {
 			finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
 			finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
 		}
+		finalMeta.Description = config.buildDescription(finalMeta)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		handleError(err)
 		err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
@@ -251,7 +252,16 @@ func checkHashes() {
 	log.Println("All hashes unique")
 }
 
-func buildDescription() string {
-	//TODO: migrate over code from pen
-	return ""
+func (c *Config) buildDescription(meta FinalData) string {
+	primaryStat := "default"
+
+	if meta.Cunning > meta.Cuteness && meta.Cunning > meta.Rattitude {
+		primaryStat = "cunning"
+	} else if meta.Cuteness > meta.Cunning && meta.Cuteness > meta.Rattitude {
+		primaryStat = "cuteness"
+	} else if meta.Rattitude > meta.Cunning && meta.Rattitude > meta.Cuteness {
+		primaryStat = "rattitude"
+	}
+
+	return fmt.Sprintf("%s", c.DescriptionData[primaryStat].Name)
 }
