@@ -422,7 +422,7 @@
     },
     "pet": {
       "nil": {
-        "rarity": 18
+        "rarity": 21
       },
       "caterpillar-green": {
         "rarity": 2
@@ -448,6 +448,17 @@
       "cool-bee": {
         "rarity": 1,
         "rattitude": 1
+      },
+      "cockroach": {
+        "rarity": 1,
+        "rattitude": 1
+      },
+      "lava-lamp": {
+        "rarity": 1,
+        "cunning": 1
+      },
+      "rock-gray": {
+        "rarity": 1
       }
     },
     "shirt": {
