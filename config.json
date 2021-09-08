@@ -3,7 +3,7 @@
   "filename": "%s-%s.png",
   "pathname": "pieces",
   "output-directory": "rats",
-  "output-image-count": 50,
+  "output-image-count": 10,
   "max-workers": 3,
   "attributes": {
     "accessory": {
@@ -652,6 +652,111 @@
       "base": {
         "rarity": 1
       }
+    }
+  },
+  "description-data": {
+    "cunning": {
+      "id": "lab-rat",
+      "name": "Lab Rat",
+      "descriptors": [
+        "they’re constantly tinkering with things they probably shouldn’t",
+        "they're smarter than the average rat",
+        "they're as interested in where cheese is as why cheese is",
+        "they're watching you as much as you're watching them",
+        "they're a nerd",
+        "they can solve any puzzle",
+        "they can solve two rubix cubes at once"
+      ],
+      "hobbies": [
+        "reading scraps of thrown out books",
+        "naming new constellations",
+        "pondering",
+        "making machines out of rubber bands and tuna cans",
+        "eating nachos",
+        "mixing different garbage juices to see what happens",
+        "nodding pensively",
+        "flying kites in lightning storms",
+        "searching through trash for artifacts",
+        "making hazmat suits out of trash bags",
+        "doing the Sunday crossword puzzle",
+        "writing letters to the editor"
+      ]
+    },
+    "cuteness": {
+      "id": "pet-rat",
+      "name": "Pet Rat",
+      "descriptors": [
+        "they're a little cutie pie",
+        "they’re the snuggliest little uggum",
+        "they're the belle of the ball",
+        "they're always down for a high five",
+        "they can fall asleep anywhere",
+        "they're your new best friend"
+      ],
+      "hobbies": [
+        "snuggling",
+        "finding the sunniest sun spot",
+        "making puppy-dog eyes",
+        "eating pizza rolls",
+        "taking long naps",
+        "making costumes",
+        "singing songs around the campfire",
+        "doing cannonballs",
+        "squeaking and squealing",
+        "training a choir of crickets",
+        "making friendship bracelets",
+        "taking bubble baths",
+        "bundling up in cozy blankets"
+      ]
+    },
+    "rattitude": {
+      "id": "street-rat",
+      "name": "Street Rat",
+      "descriptors": [
+        "they know the ins and outs of every pizzeria loading dock",
+        "if you need something, they’ve got a guy",
+        "they can make the jukebox play by elbowing it",
+        "they've got it all figured out",
+        "they know karate",
+        "they majored in street smarts"
+      ],
+      "hobbies": [
+        "stand up comedy",
+        "leaning nonchalantly on jukeboxes",
+        "getting tattoos",
+        "munching on Cheez-Its",
+        "drum solos",
+        "listening to punk music",
+        "hanging out behind the 7-Eleven",
+        "gambling for bits of cheese behind the dumpster",
+        "throwing rotten eggs at cars",
+        "playing games of chicken with alley cats",
+        "stealing candy from babies"
+      ]
+    },
+    "default": {
+      "id": "pack-rat",
+      "name": "Pack Rat",
+      "descriptors": [
+        "they have a trash stash that would make you green with envy",
+        "their motto is be prepared",
+        "they always have a ketchup packet on hand",
+        "they know how to tie every type of knot",
+        "they have everything you could possibly need, but probably won't let you have it"
+      ],
+      "hobbies": [
+        "hoarding",
+        "tossing back cookies",
+        "digging through old computer towers for spare parts",
+        "making crafts out of bottle caps",
+        "telling stories about odds and ends",
+        "rambling",
+        "eating exotic cheeses",
+        "building little bindles",
+        "melting things",
+        "having a trash stashing bash",
+        "snoozing in a hammock made from a banana peel"
+      ]
     }
   }
 }
