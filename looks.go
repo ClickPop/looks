@@ -24,37 +24,43 @@ import (
 var wg sync.WaitGroup
 
 type Config struct {
-	PieceOrder []string `json:"piece-order,omitempty"`
-	Filename string `json:"filename,omitempty"`
-	Pathname string `json:"pathname,omitempty"`
-	OutputDirectory string `json:"output-directory,omitempty"`
-	OutputImageCount float64 `json:"output-image-count,omitempty"`
-	Attributes map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
-	MaxWorkers float64 `json:"max-workers,omitempty"`
+	PieceOrder       []string                                 `json:"piece-order,omitempty"`
+	Stats            map[string]Stat                          `json:"stats,omitempty"`
+	Filename         string                                   `json:"filename,omitempty"`
+	Pathname         string                                   `json:"pathname,omitempty"`
+	OutputDirectory  string                                   `json:"output-directory,omitempty"`
+	OutputImageCount float64                                  `json:"output-image-count,omitempty"`
+	Attributes       map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
+	MaxWorkers       float64                                  `json:"max-workers,omitempty"`
+}
+type Stat struct {
+	Name    string  `json:"name,omitempty"`
+	Minimum float64 `json:"minimum,omitempty"` // Cumalitive Minimum value for specified stat
+	Maximum float64 `json:"maximum,omitempty"` // Cumalitive Maximum value for specified stat
 }
 
 type Metadata struct {
-	Piece string `json:"piece"`
-	Type string `json:"type"`
+	Piece      string             `json:"piece"`
+	Type       string             `json:"type"`
 	Attributes map[string]float64 `json:"attributes"`
 }
 
 type FinalData struct {
-	Pieces map[string]string `json:"pieces"`
-	Rarity int `json:"rarity"`
-	Cunning int `json:"cunning"`
-	Cuteness int `json:"cuteness"`
-	Rattitude int `json:"rattitude"`
+	Pieces    map[string]string `json:"pieces"`
+	Rarity    int               `json:"rarity"`
+	Cunning   int               `json:"cunning"`
+	Cuteness  int               `json:"cuteness"`
+	Rattitude int               `json:"rattitude"`
 }
 
 type Job struct {
-	id int
+	id     int
 	config Config
 }
 
 func main() {
 	startTime := time.Now()
-	config, err := loadJSON();
+	config, err := loadJSON()
 	if err != nil {
 		handleError(err, exit)
 	}
@@ -83,11 +89,11 @@ func main() {
 	close(jobs)
 
 	wg.Wait()
-	log.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()));
+	log.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()))
 	checkHashes()
 }
 
-func makeFile(jobs <-chan Job)  {
+func makeFile(jobs <-chan Job) {
 	for job := range jobs {
 		config := job.config
 		i := job.id
@@ -192,7 +198,7 @@ func handleError(err error, callbacks ...func(err error) error) error {
 		for i := 0; i < len(callbacks); i++ {
 			callback := callbacks[i]
 			val := callback(err)
-			if (val != nil) {
+			if val != nil {
 				return val
 			}
 		}
@@ -219,14 +225,15 @@ func checkHashes() {
 	log.Println("Checking hashes for collisions...")
 	filepath.WalkDir("rats", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
-			return nil;
+			return nil
 		}
 
 		if strings.Contains(d.Name(), ".png") {
 			data, _ := os.ReadFile(path)
 			reader := bytes.NewReader(data)
 			hasher := md5.New()
-			_, err := io.Copy(hasher, reader); if err != nil {
+			_, err := io.Copy(hasher, reader)
+			if err != nil {
 				log.Fatal(err)
 			}
 			hash := hex.EncodeToString(hasher.Sum(nil))
