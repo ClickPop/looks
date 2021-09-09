@@ -1,10 +1,6 @@
 {
   "piece-order": ["background", "tail", "ears", "color", "markings", "head", "snout", "torso", "shirt", "eyes", "glasses", "accessory", "hat", "pet"],
   "stats": {
-    "rarity": {
-      "minimum": 1,
-      "name": "Rarity"
-    },
     "cunning": {
       "minimum": 0,
       "maximum": 7,

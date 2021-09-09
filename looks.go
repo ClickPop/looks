@@ -46,11 +46,9 @@ type Metadata struct {
 }
 
 type FinalData struct {
-	Pieces    map[string]string `json:"pieces"`
-	Rarity    int               `json:"rarity"`
-	Cunning   int               `json:"cunning"`
-	Cuteness  int               `json:"cuteness"`
-	Rattitude int               `json:"rattitude"`
+	Pieces map[string]string  `json:"pieces"`
+	Rarity int                `json:"rarity"`
+	Stats  map[string]float64 `json:"stats"`
 }
 
 type Job struct {
