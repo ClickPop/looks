@@ -1,0 +1,23 @@
+name: "Release"
+
+on: 
+  - "push"
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+      - run: make build
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            bin/looks-darwin-amd64
+            bin/looks-darwin-arm64
+            bin/looks-linux-amd64
+            bin/looks-linux-arm64
+            bin/looks-windows-amd64.exe
+            bin/looks-windows-arm64.exe
+    
