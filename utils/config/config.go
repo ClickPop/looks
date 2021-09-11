@@ -8,14 +8,34 @@ import (
 )
 
 type Config struct {
-	PieceOrder       []string                                 `json:"piece-order,omitempty"`
-	Filename         string                                   `json:"filename,omitempty"`
-	Pathname         string                                   `json:"pathname,omitempty"`
-	OutputDirectory  string                                   `json:"output-directory,omitempty"`
-	OutputImageCount float64                                  `json:"output-image-count,omitempty"`
-	Attributes       map[string]map[string]map[string]float64 `json:"attributes,omitempty"`
-	MaxWorkers       float64                                  `json:"max-workers,omitempty"`
-	DescriptionData  map[string]DescriptionData               `json:"description-data,omitempty"`
+	Input 					 InputObject 																	`json:"input,omitempty"`
+	Output 					 OutputObject 																`json:"output,omitempty"`
+	Settings 				 ConfigSettings 															`json:"setting,omitempty"`
+	Attributes       map[string]map[string]map[string]interface{} `json:"attributes,omitempty"`
+	DescriptionData  map[string]DescriptionData                   `json:"description-data,omitempty"`
+}
+type InputObject struct {
+	Local InputLocalObject `json:"local,omitempty"`
+}
+
+type InputLocalObject struct {
+	Filename string `json:"filename,omitempty"`
+	Pathname string `json:"pathname,omitempty"`
+}
+
+type OutputObject struct {
+	Local    	 OutputLocalObject `json:"local,omitempty"`
+	Internal 	 bool							 `json:"internal,omitempty"`
+	ImageCount float64 				 	 `json:"image-count,omitempty"`
+}
+
+type OutputLocalObject struct {
+	Directory string `json:"directory,omitempty"`
+}
+
+type ConfigSettings struct {
+	PieceOrder []string `json:"piece-order,omitempty"`
+	MaxWorkers float64 	`json:"max-workers,omitempty"`
 }
 
 type DescriptionData struct {

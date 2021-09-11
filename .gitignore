@@ -1,4 +1,3 @@
-
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -18,3 +17,5 @@
 # vendor/
 rats/
 bin/
+pieces/
+config.json

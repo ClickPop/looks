@@ -27,62 +27,91 @@ import (
 var wg sync.WaitGroup
 
 type Metadata struct {
-	Piece      string             `json:"piece"`
-	Type       string             `json:"type"`
-	Attributes map[string]float64 `json:"attributes"`
+	Piece      string             		`json:"piece"`
+	Type       string             		`json:"type"`
+	Attributes map[string]interface{} `json:"attributes"`
 }
 
-type FinalData struct {
-	Pieces      map[string]string `json:"pieces"`
-	Rarity      int               `json:"rarity"`
-	Cunning     int               `json:"cunning"`
-	Cuteness    int               `json:"cuteness"`
-	Rattitude   int               `json:"rattitude"`
-	Description string            `json:"description"`
+type OpenSeaMeta struct {
+	Image 					string 						 `json:"image,omitempty"`
+	ImageData 			string 						 `json:"image_data,omitempty"`
+	ExternalURL 		string 						 `json:"external_url,omitempty"`
+	Description 		string 						 `json:"description,omitempty"`
+	Name       			string 						 `json:"name,omitempty"`
+	Attributes 			[]OpenSeaAttribute `json:"attributes,omitempty"`
+	BackgroundColor string 						 `json:"background_color,omitempty"`
+	AnimationURL 		string 						 `json:"animation_url,omitempty"`
+	YouTubeURL 			string 						 `json:"youtube_url,omitempty"`
 }
 
-type Job struct {
-	id     int
-	config conf.Config
+type OpenSeaAttribute struct {
+	TraitType 	string 			`json:"trait_type,omitempty"`
+	DisplayType string 			`json:"display_type,omitempty"`
+	Value 			interface{} `json:"value,omitempty"`
+}
+type GeneratedRat struct {
+	Image *bytes.Buffer
+	Meta *bytes.Buffer
 }
 
-func Generate(config conf.Config) {
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []GeneratedRat {
 	startTime := time.Now()
-	_, err := os.Stat(config.OutputDirectory)
+
+	outputDir := config.Output.Local.Directory
+	if (config.Output == conf.OutputObject{}) {
+		config.Output.Internal = true
+	}
+	
+	_, err := os.Stat(outputDir)
 	if os.IsNotExist(err) {
-		os.Mkdir(config.OutputDirectory, 0777)
+		os.Mkdir(outputDir, 0777)
 	}
 
-	jobs := make(chan Job, int(config.OutputImageCount))
+	image_count := int(config.Output.ImageCount)
 
-	num_workers := config.MaxWorkers
+	if (image_count == 0) {
+		image_count = 10
+		config.Output.ImageCount = float64(image_count)
+	}
+	wg.Add(image_count)
+	jobs := make(chan int, image_count)
+	results := make(chan GeneratedRat, image_count)
+
+	num_workers := config.Settings.MaxWorkers
 
 	if num_workers == 0 {
 		num_workers = 3
+		config.Settings.MaxWorkers = num_workers
 	}
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		wg.Add(1)
-		go makeFile(jobs)
+		go makeFile(config, jobs, results)
 	}
 
-	for i := 0; i < int(config.OutputImageCount); i++ {
-		jobs <- Job{i, config}
+	for i := 0; i < image_count; i++ {
+		jobs <- i
 	}
 	close(jobs)
 
+	var assets []GeneratedRat
+	for r := range results {
+		assets = append(assets, r)
+	}
 	wg.Wait()
-	log.Printf("Generated %d files in directory %s in %d seconds.\n", int(config.OutputImageCount), config.OutputDirectory, int(time.Since(startTime).Seconds()))
-	checkHashes()
+	log.Printf("Generated %d files in directory %s in %d seconds.\n", image_count, outputDir, int(time.Since(startTime).Seconds()))
+	if outputDir != "" && hashCheckCb == nil {
+		checkHashes(outputDir)
+	}
+	return assets
 }
 
-func makeFile(jobs <-chan Job) {
+func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat) {
 	for job := range jobs {
-		config := job.config
-		i := job.id
+		log.Println(len(jobs))
+		i := job
 		log.Printf("Loading files for image #%d\n", i)
-		files, metadata, err := loadFiles(&config)
+		files, metadata, err := loadFiles(config)
 		errors.HandleError(err)
 		log.Printf("Decoding data for image #%d\n", i)
 		images, err := getImages(files)
@@ -100,43 +129,68 @@ func makeFile(jobs <-chan Job) {
 				draw.Draw(img, currImg.Bounds(), currImg, origin, draw.Over)
 			}
 		}
-
-		out, err := os.Create(fmt.Sprintf("%s/%d.png", config.OutputDirectory, i))
-		errors.HandleError(err)
-		png.Encode(out, img)
-		out.Close()
-		log.Printf("Image #%d.png created\n", i)
-		var finalMeta FinalData
-		finalMeta.Pieces = make(map[string]string, len(metadata))
+		imageOut := new(bytes.Buffer)
+		metaOut := new(bytes.Buffer)
+		var finalMeta OpenSeaMeta
+		finalMeta.Attributes = make([]OpenSeaAttribute, 0);
+		attributes := make(map[string]int, 0)
 		for j := 0; j < len(metadata); j++ {
 			currMeta := metadata[j]
-			finalMeta.Pieces[currMeta.Type] = currMeta.Piece
-			finalMeta.Rarity += int(currMeta.Attributes["rarity"])
-			finalMeta.Cunning += int(currMeta.Attributes["cunning"])
-			finalMeta.Cuteness += int(currMeta.Attributes["cuteness"])
-			finalMeta.Rattitude += int(currMeta.Attributes["rattitude"])
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: currMeta.Type, Value: currMeta.Piece})
+			for k, v := range currMeta.Attributes {
+				if k != "rarity" {
+					switch t := v.(type) {
+						case float64:
+							attributes[k] += int(t)
+					}
+				}
+			}
 		}
-		finalMeta.Description = buildDescription(&config, finalMeta)
+		for k, v := range attributes {
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v, DisplayType: "number"})
+		}
+		finalMeta.Description = buildDescription(config, finalMeta)
+		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		errors.HandleError(err)
-		err = os.WriteFile(fmt.Sprintf("%s/%d.json", config.OutputDirectory, i), jsonData, 0666)
-		errors.HandleError(err)
-		log.Printf("Metadata #%d.json created\n", i)
+		if config.Output.Internal {
+			png.Encode(imageOut, img)
+			metaOut.Write(jsonData)
+		} else {
+			imageOut = nil
+			metaOut = nil
+		}
+		if config.Output.Local.Directory != "" {
+			out, err := os.Create(fmt.Sprintf("%s/%d.png", config.Output.Local.Directory, i))
+			errors.HandleError(err)
+			png.Encode(out, img)
+			out.Close()
+			log.Printf("Image #%d.png created\n", i)
+			err = os.WriteFile(fmt.Sprintf("./%s/%d.json", config.Output.Local.Directory, i), jsonData, 0666)
+			errors.HandleError(err)
+			log.Printf("Metadata #%d.json created\n", i)
+		}
+		if results != nil {
+			results <- GeneratedRat{Image: imageOut, Meta: metaOut}
+		}
+		wg.Done()
+		config.Output.ImageCount -= 1
 	}
-	
-	wg.Done()
+	if (config.Output.ImageCount == 0) {
+		close(results)
+	}
 }
 
 func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
-	fileNames := config.PieceOrder
+	fileNames := config.Settings.PieceOrder
 	var files []*bytes.Reader
 	var metadata []Metadata
 	for i := 0; i < len(fileNames); i++ {
 		file := fileNames[i]
 		piece, meta := handleRarity(config.Attributes[file])
 		if piece != "nil" {
-			filename := fmt.Sprintf(config.Filename, file, piece)
-			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Pathname, filename))
+			filename := fmt.Sprintf(config.Input.Local.Filename, file, piece)
+			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Input.Local.Pathname, filename))
 			if err != nil {
 				return nil, nil, errors.HandleError(err, errors.Exit)
 			}
@@ -147,12 +201,12 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 	return files, metadata, nil
 }
 
-func handleRarity(pieceTypes map[string]map[string]float64) (string, map[string]float64) {
+func handleRarity(pieceTypes map[string]map[string]interface{}) (string, map[string]interface{}) {
 	var chances []string
 	for key, val := range pieceTypes {
 		rarities := val
 		for _, v := range rarities {
-			for i := 0; i < int(v); i++ {
+			for i := 0; i < int(v.(float64)); i++ {
 				chances = append(chances, key)
 			}
 		}
@@ -178,10 +232,14 @@ func getImages(files []*bytes.Reader) ([]*image.Image, error) {
 	return images, nil
 }
 
-func checkHashes() {
+func checkHashes(outputDir string) {
 	hashes := make(map[string]string)
 	log.Println("Checking hashes for collisions...")
-	filepath.WalkDir("rats", func(path string, d fs.DirEntry, err error) error {
+	_, err := os.Stat(outputDir)
+	if os.IsNotExist(err) {
+		os.Mkdir(outputDir, 0777)
+	}
+	filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -206,17 +264,31 @@ func checkHashes() {
 	log.Println("All hashes unique")
 }
 
-func buildDescription(c *conf.Config, meta FinalData) string {
+func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
 	primaryStat := "default"
 
-	if meta.Cunning > meta.Cuteness && meta.Cunning > meta.Rattitude {
-		primaryStat = "cunning"
-	} else if meta.Cuteness > meta.Cunning && meta.Cuteness > meta.Rattitude {
-		primaryStat = "cuteness"
-	} else if meta.Rattitude > meta.Cunning && meta.Rattitude > meta.Cuteness {
-		primaryStat = "rattitude"
+	cunning := 0
+	cuteness := 0
+	rattitude := 0
+
+	for _, v := range meta.Attributes {
+		switch v.TraitType {
+		case "cuteness":
+			cuteness += v.Value.(int)
+		case "cunning":
+			cunning += v.Value.(int)
+		case "rattitude":
+			rattitude += v.Value.(int)
+		} 
 	}
 
+	if cunning > cuteness && cunning > rattitude {
+		primaryStat = "cunning"
+	} else if cuteness > cunning && cuteness > rattitude {
+		primaryStat = "cuteness"
+	} else if rattitude > cunning && rattitude > cuteness {
+		primaryStat = "rattitude"
+	}
 	randomDescriptor := getRandomDescriptor(c.DescriptionData[primaryStat].Descriptors)
 	randomHobbies := getRandomHobbies(c.DescriptionData[primaryStat].Hobbies, 3)
 	ratType := c.DescriptionData[primaryStat].Name
