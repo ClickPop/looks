@@ -17,18 +17,18 @@ func main() {
 		log.Fatal("Please specify a command. To see a list of command run looks --help")
 	}
 	command := args[0];
+	configFile, err := utils.ParseArgs(args, "--config-file")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conf, err := config.LoadConfig(configFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 	switch command {
 	case "gen":
 		fallthrough
 	case "generate":
-		configFile, err := utils.ParseArgs(args, "--config-file")
-		if err != nil {
-			log.Fatal(err)
-		}
-		conf, err := config.LoadConfig(configFile)
-		if err != nil {
-			log.Fatal(err)
-		}
 		generator.Generate(conf)
 	case "--help":
 		fallthrough
