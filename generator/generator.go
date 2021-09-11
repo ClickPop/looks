@@ -49,25 +49,17 @@ type OpenSeaAttribute struct {
 	DisplayType string 			`json:"display_type,omitempty"`
 	Value 			interface{} `json:"value,omitempty"`
 }
-
-type Job struct {
-	id     int
-	config conf.Config
-}
-
 type GeneratedRat struct {
 	Image *bytes.Buffer
 	Meta *bytes.Buffer
 }
 
-func Generate(config conf.Config) []GeneratedRat {
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []GeneratedRat {
 	startTime := time.Now()
 
 	outputDir := config.Output.Local.Directory
-
-	if (outputDir == "") {
-		outputDir = "./pieces"
-		config.Output.Local.Directory = outputDir
+	if (config.Output == conf.OutputObject{}) {
+		config.Output.Internal = true
 	}
 	
 	_, err := os.Stat(outputDir)
@@ -81,8 +73,8 @@ func Generate(config conf.Config) []GeneratedRat {
 		image_count = 10
 		config.Output.ImageCount = float64(image_count)
 	}
-
-	jobs := make(chan Job, image_count)
+	wg.Add(image_count)
+	jobs := make(chan int, image_count)
 	results := make(chan GeneratedRat, image_count)
 
 	num_workers := config.Settings.MaxWorkers
@@ -94,30 +86,32 @@ func Generate(config conf.Config) []GeneratedRat {
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		wg.Add(1)
-		go makeFile(jobs, results)
+		go makeFile(config, jobs, results)
 	}
 
 	for i := 0; i < image_count; i++ {
-		jobs <- Job{i, config}
+		jobs <- i
 	}
 	close(jobs)
+
 	var assets []GeneratedRat
 	for r := range results {
 		assets = append(assets, r)
 	}
 	wg.Wait()
 	log.Printf("Generated %d files in directory %s in %d seconds.\n", image_count, outputDir, int(time.Since(startTime).Seconds()))
-	checkHashes()
+	if outputDir != "" && hashCheckCb == nil {
+		checkHashes(outputDir)
+	}
 	return assets
 }
 
-func makeFile(jobs <-chan Job, results chan<- GeneratedRat) {
+func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat) {
 	for job := range jobs {
-		config := job.config
-		i := job.id
+		log.Println(len(jobs))
+		i := job
 		log.Printf("Loading files for image #%d\n", i)
-		files, metadata, err := loadFiles(&config)
+		files, metadata, err := loadFiles(config)
 		errors.HandleError(err)
 		log.Printf("Decoding data for image #%d\n", i)
 		images, err := getImages(files)
@@ -155,7 +149,7 @@ func makeFile(jobs <-chan Job, results chan<- GeneratedRat) {
 		for k, v := range attributes {
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v, DisplayType: "number"})
 		}
-		finalMeta.Description = buildDescription(&config, finalMeta)
+		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		errors.HandleError(err)
@@ -179,11 +173,12 @@ func makeFile(jobs <-chan Job, results chan<- GeneratedRat) {
 		if results != nil {
 			results <- GeneratedRat{Image: imageOut, Meta: metaOut}
 		}
+		wg.Done()
+		config.Output.ImageCount -= 1
 	}
-	if results != nil {
+	if (config.Output.ImageCount == 0) {
 		close(results)
 	}
-	wg.Done()
 }
 
 func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
@@ -237,10 +232,14 @@ func getImages(files []*bytes.Reader) ([]*image.Image, error) {
 	return images, nil
 }
 
-func checkHashes() {
+func checkHashes(outputDir string) {
 	hashes := make(map[string]string)
 	log.Println("Checking hashes for collisions...")
-	filepath.WalkDir("rats", func(path string, d fs.DirEntry, err error) error {
+	_, err := os.Stat(outputDir)
+	if os.IsNotExist(err) {
+		os.Mkdir(outputDir, 0777)
+	}
+	filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
