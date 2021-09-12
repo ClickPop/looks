@@ -29,7 +29,10 @@ func main() {
 	case "gen":
 		fallthrough
 	case "generate":
-		generator.Generate(&conf, nil)
+		_, err = generator.Generate(&conf, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 	case "--help":
 		fallthrough
 	case "-h":

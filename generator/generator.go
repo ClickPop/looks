@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/clickpop/looks/errors"
 	"github.com/clickpop/looks/utils"
 	conf "github.com/clickpop/looks/utils/config"
 )
@@ -54,7 +53,7 @@ type GeneratedRat struct {
 	Meta *bytes.Buffer
 }
 
-func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []GeneratedRat {
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]GeneratedRat, error) {
 	startTime := time.Now()
 
 	outputDir := config.Output.Local.Directory
@@ -65,6 +64,8 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []Gene
 	_, err := os.Stat(outputDir)
 	if os.IsNotExist(err) {
 		os.Mkdir(outputDir, 0777)
+	} else if err != nil {
+		return nil, err
 	}
 
 	image_count := int(config.Output.ImageCount)
@@ -74,8 +75,10 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []Gene
 		config.Output.ImageCount = float64(image_count)
 	}
 	wg.Add(image_count)
+
 	jobs := make(chan int, image_count)
 	results := make(chan GeneratedRat, image_count)
+	errChan := make(chan error)
 
 	num_workers := config.Settings.MaxWorkers
 
@@ -86,7 +89,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []Gene
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		go makeFile(config, jobs, results)
+		go makeFile(config, jobs, results, errChan)
 	}
 
 	for i := 0; i < image_count; i++ {
@@ -101,21 +104,28 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) []Gene
 	wg.Wait()
 	log.Printf("Generated %d files in directory %s in %d seconds.\n", image_count, outputDir, int(time.Since(startTime).Seconds()))
 	if outputDir != "" && hashCheckCb == nil {
-		checkHashes(outputDir)
+		err = checkHashes(outputDir)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return assets
+	return assets, nil
 }
 
-func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat) {
+func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
 	for job := range jobs {
 		log.Println(len(jobs))
 		i := job
 		log.Printf("Loading files for image #%d\n", i)
 		files, metadata, err := loadFiles(config)
-		errors.HandleError(err)
+		if err != nil {
+			errChan <- err
+		}
 		log.Printf("Decoding data for image #%d\n", i)
 		images, err := getImages(files)
-		errors.HandleError(err)
+		if err != nil {
+			errChan <- err
+		}
 		baseImage := *images[0]
 		rect := image.Rectangle{baseImage.Bounds().Min, baseImage.Bounds().Max}
 		img := image.NewRGBA(rect)
@@ -152,7 +162,9 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat)
 		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
-		errors.HandleError(err)
+		if err != nil {
+			errChan <- err
+		}
 		if config.Output.Internal {
 			png.Encode(imageOut, img)
 			metaOut.Write(jsonData)
@@ -162,12 +174,16 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat)
 		}
 		if config.Output.Local.Directory != "" {
 			out, err := os.Create(fmt.Sprintf("%s/%d.png", config.Output.Local.Directory, i))
-			errors.HandleError(err)
+			if err != nil {
+				errChan <- err
+			}
 			png.Encode(out, img)
 			out.Close()
 			log.Printf("Image #%d.png created\n", i)
 			err = os.WriteFile(fmt.Sprintf("./%s/%d.json", config.Output.Local.Directory, i), jsonData, 0666)
-			errors.HandleError(err)
+			if err != nil {
+				errChan <- err
+			}
 			log.Printf("Metadata #%d.json created\n", i)
 		}
 		if results != nil {
@@ -178,6 +194,7 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat)
 	}
 	if (config.Output.ImageCount == 0) {
 		close(results)
+		close(errChan)
 	}
 }
 
@@ -192,7 +209,7 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 			filename := fmt.Sprintf(config.Input.Local.Filename, file, piece)
 			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Input.Local.Pathname, filename))
 			if err != nil {
-				return nil, nil, errors.HandleError(err, errors.Exit)
+				return nil, nil, err
 			}
 			files = append(files, bytes.NewReader(data))
 			metadata = append(metadata, Metadata{Type: file, Piece: piece, Attributes: meta})
@@ -225,21 +242,23 @@ func getImages(files []*bytes.Reader) ([]*image.Image, error) {
 	for i := 0; i < len(files); i++ {
 		img, err := png.Decode(files[i])
 		if err != nil {
-			return nil, errors.HandleError(err, errors.Exit)
+			return nil, err
 		}
 		images = append(images, &img)
 	}
 	return images, nil
 }
 
-func checkHashes(outputDir string) {
+func checkHashes(outputDir string) error {
 	hashes := make(map[string]string)
 	log.Println("Checking hashes for collisions...")
 	_, err := os.Stat(outputDir)
 	if os.IsNotExist(err) {
 		os.Mkdir(outputDir, 0777)
+	} else if err != nil {
+		return err
 	}
-	filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -250,18 +269,22 @@ func checkHashes(outputDir string) {
 			hasher := md5.New()
 			_, err := io.Copy(hasher, reader)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 			hash := hex.EncodeToString(hasher.Sum(nil))
 			if hashes[hash] != "" {
-				log.Fatal("COLLISION", hashes[hash], path)
-				os.Exit(1)
+				log.Println("COLLISION", hashes[hash], path)
+				return fmt.Errorf("COLLISION: %s & %s", hashes[hash], path)
 			}
 			hashes[hash] = path
 		}
 		return err
 	})
+	if err != nil {
+		return err
+	}
 	log.Println("All hashes unique")
+	return nil
 }
 
 func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
