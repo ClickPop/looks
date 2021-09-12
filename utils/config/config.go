@@ -3,8 +3,6 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-
-	"github.com/clickpop/looks/errors"
 )
 
 type Config struct {
@@ -52,8 +50,12 @@ func LoadConfig(path string) (Config, error) {
 		filePath = "./config.json"
 	}
 	data, err := ioutil.ReadFile(filePath)
-	errors.HandleError(err)
+	if err != nil {
+		return config, err
+	}
 	err = json.Unmarshal(data, &config)
-	errors.HandleError(err)
-	return config, errors.HandleError(err)
+	if err != nil {
+		return config, err
+	}
+	return config, nil
 }
