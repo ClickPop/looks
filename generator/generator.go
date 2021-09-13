@@ -26,31 +26,31 @@ import (
 var wg sync.WaitGroup
 
 type Metadata struct {
-	Piece      string             		`json:"piece"`
-	Type       string             		`json:"type"`
+	Piece      string                 `json:"piece"`
+	Type       string                 `json:"type"`
 	Attributes map[string]interface{} `json:"attributes"`
 }
 
 type OpenSeaMeta struct {
-	Image 					string 						 `json:"image,omitempty"`
-	ImageData 			string 						 `json:"image_data,omitempty"`
-	ExternalURL 		string 						 `json:"external_url,omitempty"`
-	Description 		string 						 `json:"description,omitempty"`
-	Name       			string 						 `json:"name,omitempty"`
-	Attributes 			[]OpenSeaAttribute `json:"attributes,omitempty"`
-	BackgroundColor string 						 `json:"background_color,omitempty"`
-	AnimationURL 		string 						 `json:"animation_url,omitempty"`
-	YouTubeURL 			string 						 `json:"youtube_url,omitempty"`
+	Image           string             `json:"image,omitempty"`
+	ImageData       string             `json:"image_data,omitempty"`
+	ExternalURL     string             `json:"external_url,omitempty"`
+	Description     string             `json:"description,omitempty"`
+	Name            string             `json:"name,omitempty"`
+	Attributes      []OpenSeaAttribute `json:"attributes,omitempty"`
+	BackgroundColor string             `json:"background_color,omitempty"`
+	AnimationURL    string             `json:"animation_url,omitempty"`
+	YouTubeURL      string             `json:"youtube_url,omitempty"`
 }
 
 type OpenSeaAttribute struct {
-	TraitType 	string 			`json:"trait_type,omitempty"`
-	DisplayType string 			`json:"display_type,omitempty"`
-	Value 			interface{} `json:"value,omitempty"`
+	TraitType   string      `json:"trait_type,omitempty"`
+	DisplayType string      `json:"display_type,omitempty"`
+	Value       interface{} `json:"value,omitempty"`
 }
 type GeneratedRat struct {
 	Image *bytes.Buffer
-	Meta *bytes.Buffer
+	Meta  *bytes.Buffer
 }
 
 func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]GeneratedRat, error) {
@@ -60,7 +60,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 	if (config.Output == conf.OutputObject{}) {
 		config.Output.Internal = true
 	}
-	
+
 	_, err := os.Stat(outputDir)
 	if os.IsNotExist(err) {
 		os.Mkdir(outputDir, 0777)
@@ -70,7 +70,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 
 	image_count := int(config.Output.ImageCount)
 
-	if (image_count == 0) {
+	if image_count == 0 {
 		image_count = 10
 		config.Output.ImageCount = float64(image_count)
 	}
@@ -113,8 +113,12 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 }
 
 func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
+	stats := make(map[string]int)
+	for k := range config.Settings.Stats {
+		stats[k] = 0
+	}
+
 	for job := range jobs {
-		log.Println(len(jobs))
 		i := job
 		log.Printf("Loading files for image #%d\n", i)
 		files, metadata, err := loadFiles(config)
@@ -142,16 +146,21 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		imageOut := new(bytes.Buffer)
 		metaOut := new(bytes.Buffer)
 		var finalMeta OpenSeaMeta
-		finalMeta.Attributes = make([]OpenSeaAttribute, 0);
-		attributes := make(map[string]int, 0)
+		finalMeta.Attributes = make([]OpenSeaAttribute, 0)
+		attributes := make(map[string]int)
 		for j := 0; j < len(metadata); j++ {
 			currMeta := metadata[j]
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: currMeta.Type, Value: currMeta.Piece})
 			for k, v := range currMeta.Attributes {
 				if k != "rarity" {
 					switch t := v.(type) {
-						case float64:
-							attributes[k] += int(t)
+					case float64:
+						attributes[k] += int(t)
+						if attributes[k] >= config.Settings.Stats[k].Maximum {
+							attributes[k] = config.Settings.Stats[k].Maximum
+						} else if attributes[k] <= config.Settings.Stats[k].Minimum {
+							attributes[k] = config.Settings.Stats[k].Minimum
+						}
 					}
 				}
 			}
@@ -192,7 +201,7 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		wg.Done()
 		config.Output.ImageCount -= 1
 	}
-	if (config.Output.ImageCount == 0) {
+	if config.Output.ImageCount == 0 {
 		close(results)
 		close(errChan)
 	}
@@ -288,35 +297,23 @@ func checkHashes(outputDir string) error {
 }
 
 func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
-	primaryStat := "default"
-
-	cunning := 0
-	cuteness := 0
-	rattitude := 0
+	stats := make(map[string]int)
+	for k := range c.Settings.Stats {
+		stats[k] = 0
+	}
 
 	for _, v := range meta.Attributes {
-		switch v.TraitType {
-		case "cuteness":
-			cuteness += v.Value.(int)
-		case "cunning":
-			cunning += v.Value.(int)
-		case "rattitude":
-			rattitude += v.Value.(int)
-		} 
+		if _, isStat := stats[v.TraitType]; isStat {
+			stats[v.TraitType] += v.Value.(int)
+		}
 	}
 
-	if cunning > cuteness && cunning > rattitude {
-		primaryStat = "cunning"
-	} else if cuteness > cunning && cuteness > rattitude {
-		primaryStat = "cuteness"
-	} else if rattitude > cunning && rattitude > cuteness {
-		primaryStat = "rattitude"
-	}
-	randomDescriptor := getRandomDescriptor(c.DescriptionData[primaryStat].Descriptors)
-	randomHobbies := getRandomHobbies(c.DescriptionData[primaryStat].Hobbies, 3)
-	ratType := c.DescriptionData[primaryStat].Name
+	primaryStat := getPrimaryStat(stats, c.Descriptions.FallbackPrimaryStat)
+	randomDescriptor := getRandomDescriptor(c.Descriptions.Types[primaryStat].Descriptors)
+	randomHobbies := getRandomHobbies(c.Descriptions.Types[primaryStat].Hobbies, c.Descriptions.HobbiesCount)
+	currentType := c.Descriptions.Types[primaryStat].Name
 
-	return fmt.Sprintf("This little rat is a %s, that means %s. Their favorite hobbies include %s.", ratType, randomDescriptor, randomHobbies)
+	return fmt.Sprintf(c.Descriptions.Template, currentType, randomDescriptor, randomHobbies)
 }
 
 func getRandomDescriptor(descriptors []string) string {
@@ -344,14 +341,39 @@ func getRandomHobbies(hobbies []string, n int) string {
 
 func oxfordJoin(slice []string) string {
 	outStr := ""
+	complex := false
+	punct := ","
+
+	for _, v := range slice {
+		if strings.Contains(v, ",") {
+			complex = true
+			punct = ";"
+		}
+	}
 
 	if len(slice) == 1 {
 		outStr = slice[0]
-	} else if len(slice) == 2 {
+	} else if len(slice) == 2 && !complex {
 		outStr = strings.Join(slice, " and ")
-	} else if len(slice) > 2 {
-		outStr = strings.Join(slice[0:(len(slice)-1)], ", ") + ", and " + slice[len(slice)-1]
+	} else if len(slice) > 2 || (len(slice) == 2 && complex) {
+		outStr = strings.Join(slice[0:(len(slice)-1)], fmt.Sprintf("%s ", punct)) + fmt.Sprintf("%s and ", punct) + slice[len(slice)-1]
 	}
 
 	return outStr
+}
+
+func getPrimaryStat(stats map[string]int, fallbackPrimaryStat string) string {
+	max := -(int(^uint(0) >> 1)) - 1
+	primaryStat := fallbackPrimaryStat
+
+	for stat, v := range stats {
+		if v > max {
+			primaryStat = stat
+			max = v
+		} else if v == max {
+			primaryStat = fallbackPrimaryStat
+		}
+	}
+
+	return primaryStat
 }
