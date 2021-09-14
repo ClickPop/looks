@@ -6,11 +6,11 @@ import (
 )
 
 type Config struct {
-	Input        InputObject                                  `json:"input,omitempty"`
-	Output       OutputObject                                 `json:"output,omitempty"`
-	Settings     ConfigSettings                               `json:"settings,omitempty"`
-	Attributes   map[string]map[string]map[string]interface{} `json:"attributes,omitempty"`
-	Descriptions ConfigDescriptions                           `json:"descriptions,omitempty"`
+	Input        InputObject                           `json:"input,omitempty"`
+	Output       OutputObject                          `json:"output,omitempty"`
+	Settings     ConfigSettings                        `json:"settings,omitempty"`
+	Attributes   map[string]map[string]ConfigAttribute `json:"attributes,omitempty"`
+	Descriptions ConfigDescriptions                    `json:"descriptions,omitempty"`
 }
 type InputObject struct {
 	Local InputLocalObject `json:"local,omitempty"`
@@ -34,6 +34,7 @@ type OutputLocalObject struct {
 type ConfigSettings struct {
 	PieceOrder []string               `json:"piece-order,omitempty"`
 	Stats      map[string]ConfigStats `json:"stats,omitempty"`
+	Rarity     ConfigRarity           `json:"rarity,omitempty"`
 	MaxWorkers float64                `json:"max-workers,omitempty"`
 }
 
@@ -54,6 +55,16 @@ type ConfigStats struct {
 	Name    string `json:"name,omitempty"`
 	Minimum int    `json:"minimum,omitempty"`
 	Maximum int    `json:"maximum,omitempty"`
+}
+
+type ConfigRarity struct {
+	Order   []string       `json:"order,omitempty"`
+	Chances map[string]int `json:"chances,omitempty"`
+}
+
+type ConfigAttribute struct {
+	Rarity string         `json:"rarity,omitempty"`
+	Stats  map[string]int `json:"stats,omitempty"`
 }
 
 func LoadConfig(path string) (Config, error) {
