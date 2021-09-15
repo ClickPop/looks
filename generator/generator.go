@@ -12,12 +12,10 @@ import (
 	"io"
 	"io/fs"
 	"log"
-	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -179,7 +177,6 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		for k, v := range attributes {
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v.Value, DisplayType: "number", MaxValue: v.Maximum})
 		}
-		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Rarity", Value: calculateTotalRarity(metadata, config.Settings.Rarity), MaxValue: 100})
 		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
@@ -266,25 +263,6 @@ func getRarityDenominator(r conf.ConfigRarity) int {
 	}
 
 	return denominator
-}
-
-func calculateTotalRarity(metadata []Metadata, r conf.ConfigRarity) float64 {
-	denominator := getRarityDenominator(r)
-	percDenominator := denominator * len(metadata)
-	percNumerator := 0
-
-	for _, meta := range metadata {
-		percNumerator += r.Chances[meta.Rarity]
-	}
-
-	percentage := math.Round(float64(percNumerator)/float64(percDenominator)*10000) / 100
-	strconv.FormatFloat(percentage, 'f', -1, 64)
-	if percentage < 0 {
-		percentage = 0.01
-	} else if percentage >= 100 {
-		percentage = 100
-	}
-	return percentage
 }
 
 func getRarityLevel(r conf.ConfigRarity) []string {
