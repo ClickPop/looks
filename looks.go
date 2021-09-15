@@ -16,7 +16,7 @@ func main() {
 	if len(args) < 1 {
 		log.Fatal("Please specify a command. To see a list of command run looks --help")
 	}
-	command := args[0];
+	command := args[0]
 	configFile, err := utils.ParseArgs(args, "--config-file")
 	if err != nil {
 		log.Fatal(err)

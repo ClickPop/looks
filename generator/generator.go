@@ -29,10 +29,11 @@ import (
 var wg sync.WaitGroup
 
 type Metadata struct {
-	Piece      string         `json:"piece"`
-	Type       string         `json:"type"`
-	Attributes map[string]int `json:"attributes"`
-	Rarity     string         `json:"rarity"`
+	Piece        string
+	Type         string
+	Attributes   map[string]conf.ConfigStat
+	Rarity       string
+	FriendlyName string
 }
 
 type OpenSeaMeta struct {
@@ -51,7 +52,7 @@ type OpenSeaAttribute struct {
 	TraitType   string      `json:"trait_type,omitempty"`
 	DisplayType string      `json:"display_type,omitempty"`
 	Value       interface{} `json:"value,omitempty"`
-	MaxValue    interface{} `json:"max_value,omitempty"`
+	MaxValue    int         `json:"max_value,omitempty"`
 }
 type GeneratedRat struct {
 	Image *bytes.Buffer
@@ -152,21 +153,31 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		metaOut := new(bytes.Buffer)
 		var finalMeta OpenSeaMeta
 		finalMeta.Attributes = make([]OpenSeaAttribute, 0)
-		attributes := make(map[string]int)
+		attributes := make(map[string]conf.ConfigStat)
+		for _, v := range config.Settings.Stats {
+			attr := v
+			attr.Value = 0
+			attributes[attr.Name] = attr
+		}
 		for j := 0; j < len(metadata); j++ {
 			currMeta := metadata[j]
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: currMeta.Type, Value: currMeta.Piece})
-			for k, v := range currMeta.Attributes {
-				attributes[k] += int(v)
-				if attributes[k] >= config.Settings.Stats[k].Maximum {
-					attributes[k] = config.Settings.Stats[k].Maximum
-				} else if attributes[k] <= config.Settings.Stats[k].Minimum {
-					attributes[k] = config.Settings.Stats[k].Minimum
+			sort.Slice(finalMeta.Attributes, func(i, j int) bool {
+				return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
+			})
+			for _, v := range currMeta.Attributes {
+				attr := attributes[v.Name]
+				attr.Value += v.Value
+				if attr.Value >= v.Maximum {
+					attr.Value = v.Maximum
+				} else if attr.Value <= v.Minimum {
+					attr.Value = v.Minimum
 				}
+				attributes[v.Name] = attr
 			}
 		}
 		for k, v := range attributes {
-			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v, DisplayType: "number"})
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v.Value, DisplayType: "number", MaxValue: v.Maximum})
 		}
 		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Rarity", Value: calculateTotalRarity(metadata, config.Settings.Rarity), MaxValue: 100})
 		finalMeta.Description = buildDescription(config, finalMeta)
@@ -214,17 +225,34 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 	var metadata []Metadata
 	for i := 0; i < len(fileNames); i++ {
 		file := fileNames[i]
-
-		piece, meta := handleRarity(config.Attributes[file], config.Settings.Rarity)
+		pieceTypeFriendlyName := config.Attributes[file].FriendlyName
+		if pieceTypeFriendlyName == "" {
+			pieceTypeFriendlyName = utils.TransformName(file)
+		}
+		piece, meta := handleRarity(config.Attributes[file].Pieces, config.Settings.Rarity)
 
 		if piece != "nil" {
+			pieceFriendlyName := config.Attributes[file].Pieces[piece].FriendlyName
+			if pieceFriendlyName == "" {
+				pieceFriendlyName = utils.TransformName(piece)
+			}
 			filename := fmt.Sprintf(config.Input.Local.Filename, file, piece)
 			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Input.Local.Pathname, filename))
 			if err != nil {
 				return nil, nil, err
 			}
 			files = append(files, bytes.NewReader(data))
-			metadata = append(metadata, Metadata{Type: file, Piece: piece, Attributes: meta.Stats, Rarity: meta.Rarity})
+			stats := make(map[string]conf.ConfigStat)
+			for k, v := range meta.Stats {
+				stat := config.Settings.Stats[k]
+				name := stat.Name
+				if name == "" {
+					name = utils.TransformName(k)
+				}
+				stat.Value = v
+				stats[k] = stat
+			}
+			metadata = append(metadata, Metadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: meta.Rarity, FriendlyName: meta.FriendlyName})
 		}
 	}
 
@@ -288,7 +316,6 @@ func getRarityLevel(r conf.ConfigRarity) []string {
 func handleRarity(pieceTypes map[string]conf.ConfigAttribute, rarityData conf.ConfigRarity) (string, conf.ConfigAttribute) {
 	rarityLevel := getRarityLevel(rarityData)
 	var possiblePieces []string
-
 	for _, v := range rarityLevel {
 		for key, piece := range pieceTypes {
 			if v == piece.Rarity {

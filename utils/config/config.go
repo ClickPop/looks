@@ -6,11 +6,11 @@ import (
 )
 
 type Config struct {
-	Input        InputObject                           `json:"input,omitempty"`
-	Output       OutputObject                          `json:"output,omitempty"`
-	Settings     ConfigSettings                        `json:"settings,omitempty"`
-	Attributes   map[string]map[string]ConfigAttribute `json:"attributes,omitempty"`
-	Descriptions ConfigDescriptions                    `json:"descriptions,omitempty"`
+	Input        InputObject            `json:"input,omitempty"`
+	Output       OutputObject           `json:"output,omitempty"`
+	Settings     ConfigSettings         `json:"settings,omitempty"`
+	Attributes   map[string]ConfigPiece `json:"attributes,omitempty"`
+	Descriptions ConfigDescriptions     `json:"descriptions,omitempty"`
 }
 type InputObject struct {
 	Local InputLocalObject `json:"local,omitempty"`
@@ -33,7 +33,7 @@ type OutputLocalObject struct {
 
 type ConfigSettings struct {
 	PieceOrder []string               `json:"piece-order,omitempty"`
-	Stats      map[string]ConfigStats `json:"stats,omitempty"`
+	Stats      map[string]ConfigStat `json:"stats,omitempty"`
 	Rarity     ConfigRarity           `json:"rarity,omitempty"`
 	MaxWorkers float64                `json:"max-workers,omitempty"`
 }
@@ -51,10 +51,11 @@ type ConfigDescriptionTypes struct {
 	Hobbies     []string `json:"hobbies,omitempty"`
 }
 
-type ConfigStats struct {
+type ConfigStat struct {
 	Name    string `json:"name,omitempty"`
 	Minimum int    `json:"minimum,omitempty"`
 	Maximum int    `json:"maximum,omitempty"`
+	Value int
 }
 
 type ConfigRarity struct {
@@ -63,8 +64,14 @@ type ConfigRarity struct {
 }
 
 type ConfigAttribute struct {
-	Rarity string         `json:"rarity,omitempty"`
-	Stats  map[string]int `json:"stats,omitempty"`
+	Rarity 			 string          			 `json:"rarity,omitempty"`
+	Stats  			 map[string]int `json:"stats,omitempty"`
+	FriendlyName string								 `json:"friendly-name,omitempty"`
+}
+
+type ConfigPiece struct {
+	FriendlyName string 					 					`json:"friendly-name,omitempty"`
+	Pieces 			 map[string]ConfigAttribute `json:"pieces,omitempty"`
 }
 
 func LoadConfig(path string) (Config, error) {
