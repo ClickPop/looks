@@ -12,10 +12,12 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -49,6 +51,7 @@ type OpenSeaAttribute struct {
 	TraitType   string      `json:"trait_type,omitempty"`
 	DisplayType string      `json:"display_type,omitempty"`
 	Value       interface{} `json:"value,omitempty"`
+	MaxValue    interface{} `json:"max_value,omitempty"`
 }
 type GeneratedRat struct {
 	Image *bytes.Buffer
@@ -165,6 +168,7 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		for k, v := range attributes {
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v, DisplayType: "number"})
 		}
+		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Rarity", Value: calculateTotalRarity(metadata, config.Settings.Rarity), MaxValue: 100})
 		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
@@ -224,8 +228,6 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 		}
 	}
 
-	// TODO: fmt.Println(calculateTotalRarity(metadata, config.Settings.Rarity))
-
 	return files, metadata, nil
 }
 
@@ -240,12 +242,21 @@ func getRarityDenominator(r conf.ConfigRarity) int {
 
 func calculateTotalRarity(metadata []Metadata, r conf.ConfigRarity) float64 {
 	denominator := getRarityDenominator(r)
-	currentCalculatedRarity := float64(1)
+	percDenominator := denominator * len(metadata)
+	percNumerator := 0
+
 	for _, meta := range metadata {
-		currentCalculatedRarity *= float64(r.Chances[meta.Rarity]) / float64(denominator)
+		percNumerator += r.Chances[meta.Rarity]
 	}
 
-	return currentCalculatedRarity
+	percentage := math.Round(float64(percNumerator)/float64(percDenominator)*10000) / 100
+	strconv.FormatFloat(percentage, 'f', -1, 64)
+	if percentage < 0 {
+		percentage = 0.01
+	} else if percentage >= 100 {
+		percentage = 100
+	}
+	return percentage
 }
 
 func getRarityLevel(r conf.ConfigRarity) []string {
@@ -273,6 +284,7 @@ func getRarityLevel(r conf.ConfigRarity) []string {
 	sort.Sort(sort.Reverse(sort.StringSlice(rarity)))
 	return rarity
 }
+
 func handleRarity(pieceTypes map[string]conf.ConfigAttribute, rarityData conf.ConfigRarity) (string, conf.ConfigAttribute) {
 	rarityLevel := getRarityLevel(rarityData)
 	var possiblePieces []string
