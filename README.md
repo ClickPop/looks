@@ -40,30 +40,48 @@ The configuration schema is as follow (WIP)
         "maximum": 7,
         "name": "Rattitude"
       }
+    },
+    "rarity": {
+      "order": ["common", "uncommon", "rare", "epic", "legendary"],
+      "chances": {
+        "common": 600,
+        "uncommon": 250,
+        "rare": 100,
+        "epic": 30,
+        "legendary": 20
+      }
     }
   },
   "attributes": { /** WIP: Object: key-value pairs that signify your different pieces and their attributes */
     "background": {
       "dark": {
-        "rarity": 6,
-        "rattitude": 2,
-        "cunning": 1,
-        "cuteness": -1
+        "rarity": "common",
+        "stats": {
+          "rattitude": 2,
+          "cunning": 1,
+          "cuteness": -1
+        }
       },
       "light": {
-        "rarity": 4,
-        "cunning": 2,
-        "rattitude": -1
+        "rarity": "uncommon",
+        "stats": {
+          "cunning": 2,
+          "rattitude": -1
+        }
       }
     },
     "foreground": {
       "pink": {
-        "rarity": 3,
-        "cuteness": 2
+        "rarity": "epic",
+        "stats": {
+          "cuteness": 2
+        }
       },
       "green": {
-        "rarity": 4,
-        "cunning": 1
+        "rarity": "common",
+        "stats": {
+          "cunning": 1
+        }
       }
     }
   },
