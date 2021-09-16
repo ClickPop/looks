@@ -226,7 +226,7 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 		if pieceTypeFriendlyName == "" {
 			pieceTypeFriendlyName = utils.TransformName(file)
 		}
-		piece, meta := handleRarity(config.Attributes[file].Pieces, config.Settings.Rarity)
+		piece, meta := handleRarity(config.Attributes[file].Pieces, config.Settings.Rarity, config.Output)
 
 		if piece != "nil" {
 			pieceFriendlyName := config.Attributes[file].Pieces[piece].FriendlyName
@@ -265,34 +265,57 @@ func getRarityDenominator(r conf.ConfigRarity) int {
 	return denominator
 }
 
-func getRarityLevel(r conf.ConfigRarity) []string {
+func getRarityMinimum(r conf.ConfigRarity, minRarity string) int {
+	minimum := 0
+	hasMinKey := false
+	minKey := 0
+
+	if minRarity != "" {
+		for k, v := range r.Order {
+			if v == minRarity {
+				minKey = k - 1
+				if minKey >= 0 {
+					hasMinKey = true
+				}
+			}
+		}
+		if hasMinKey {
+			for i := 0; i <= minKey; i++ {
+				minimum += r.Chances[r.Order[i]]
+			}
+		}
+	}
+
+	return minimum
+}
+
+func getRarityLevel(r conf.ConfigRarity, minRarity string) []string {
 	denominator := getRarityDenominator(r)
+	minimum := getRarityMinimum(r, minRarity)
 
 	seed := time.Now().Unix() + int64(time.Now().Nanosecond())
 	rand.Seed(seed)
 
-	random := rand.Intn(denominator)
+	random := rand.Intn(denominator-minimum) + minimum
 
 	rarity := []string{r.Order[0]}
 
 	currentThreshold := 0
 
 	for i, v := range r.Order {
-		currentThreshold += int(r.Chances[v])
-		if random <= currentThreshold {
+		if random >= currentThreshold {
 			if i != 0 {
 				rarity = append(rarity, v)
 			}
-			break
 		}
+		currentThreshold += int(r.Chances[v])
 	}
-
-	sort.Sort(sort.Reverse(sort.StringSlice(rarity)))
+	rarity = reverseStringSlice(rarity)
 	return rarity
 }
 
-func handleRarity(pieceTypes map[string]conf.ConfigAttribute, rarityData conf.ConfigRarity) (string, conf.ConfigAttribute) {
-	rarityLevel := getRarityLevel(rarityData)
+func handleRarity(pieceTypes map[string]conf.ConfigAttribute, rarityData conf.ConfigRarity, outputOpt conf.OutputObject) (string, conf.ConfigAttribute) {
+	rarityLevel := getRarityLevel(rarityData, outputOpt.MinimumRarity)
 	var possiblePieces []string
 	for _, v := range rarityLevel {
 		for key, piece := range pieceTypes {
@@ -443,4 +466,12 @@ func getPrimaryStat(stats map[string]int, fallbackPrimaryStat string) string {
 	}
 
 	return primaryStat
+}
+
+func reverseStringSlice(slice []string) []string {
+	var revSlice []string
+	for i := len(slice) - 1; i >= 0; i-- {
+		revSlice = append(revSlice, slice[i])
+	}
+	return revSlice
 }

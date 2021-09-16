@@ -19,7 +19,8 @@ The configuration schema is as follow (WIP)
   "output": { /* Object: key-value pairs that represent the input settings */
     "local": { "directory": "output" }, /* WIP: Object: Local Settings */
     "internal": true, /* WIP: bool: Use internal output (for sending to NFT Minting tool) */
-    "image-count": 1 /* int: Number of images to generate */
+    "image-count": 1, /* int: Number of images to generate */
+    "minimum-rarity": "rare" /* <optional> string: Sets the minimum rarity level for all pieces */
   },
   "settings": {
     "max-workers": 3, /* int: Number of workers to run. Generally you want to keep this below like 6 or 7 unless you have a really beefy machine, as generating can use a lot of memory depending on the number of layers */
