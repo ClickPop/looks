@@ -388,8 +388,15 @@ func checkHashes(outputDir string) error {
 
 func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
 	stats := make(map[string]int)
-	for k := range c.Settings.Stats {
-		stats[k] = 0
+	namesToKeys := make(map[string]string)
+	namesToKeys["fallback"] = "fallback"
+	for k, v := range c.Settings.Stats {
+		name := v.Name
+		if name == "" {
+			name = utils.TransformName(k)
+		}
+		stats[name] = 0
+		namesToKeys[name] = k
 	}
 
 	for _, v := range meta.Attributes {
@@ -397,11 +404,10 @@ func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
 			stats[v.TraitType] += v.Value.(int)
 		}
 	}
-
 	primaryStat := getPrimaryStat(stats, c.Descriptions.FallbackPrimaryStat)
-	randomDescriptor := getRandomDescriptor(c.Descriptions.Types[primaryStat].Descriptors)
-	randomHobbies := getRandomHobbies(c.Descriptions.Types[primaryStat].Hobbies, c.Descriptions.HobbiesCount)
-	currentType := c.Descriptions.Types[primaryStat].Name
+	randomDescriptor := getRandomDescriptor(c.Descriptions.Types[namesToKeys[primaryStat]].Descriptors)
+	randomHobbies := getRandomHobbies(c.Descriptions.Types[namesToKeys[primaryStat]].Hobbies, c.Descriptions.HobbiesCount)
+	currentType := c.Descriptions.Types[namesToKeys[primaryStat]].Name
 
 	return fmt.Sprintf(c.Descriptions.Template, currentType, randomDescriptor, randomHobbies)
 }
@@ -464,7 +470,6 @@ func getPrimaryStat(stats map[string]int, fallbackPrimaryStat string) string {
 			primaryStat = fallbackPrimaryStat
 		}
 	}
-
 	return primaryStat
 }
 
