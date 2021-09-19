@@ -191,7 +191,6 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			}
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val});
 		}
-		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "birthday", DisplayType: "date", Value: time.Now().Unix()})
 		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
