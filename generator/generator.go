@@ -151,11 +151,11 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 		metaOut := new(bytes.Buffer)
 		var finalMeta OpenSeaMeta
 		finalMeta.Attributes = make([]OpenSeaAttribute, 0)
-		attributes := make(map[string]conf.ConfigStat)
+		stats := make(map[string]conf.ConfigStat)
 		for _, v := range config.Settings.Stats {
 			attr := v
 			attr.Value = 0
-			attributes[attr.Name] = attr
+			stats[attr.Name] = attr
 		}
 		for j := 0; j < len(metadata); j++ {
 			currMeta := metadata[j]
@@ -164,19 +164,34 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 				return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
 			})
 			for _, v := range currMeta.Attributes {
-				attr := attributes[v.Name]
+				attr := stats[v.Name]
 				attr.Value += v.Value
 				if attr.Value >= v.Maximum {
 					attr.Value = v.Maximum
 				} else if attr.Value <= v.Minimum {
 					attr.Value = v.Minimum
 				}
-				attributes[v.Name] = attr
+				stats[v.Name] = attr
 			}
 		}
-		for k, v := range attributes {
+		for k, v := range stats {
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v.Value, DisplayType: "number", MaxValue: v.Maximum})
 		}
+		for k, v := range config.Settings.Attributes {
+			val := v.Value
+			name := v.Name
+			attrType := v.Type
+			if name == "" {
+				name = k
+			}
+			switch v.Type {
+			case "timestamp":
+				attrType = "date"
+				val = time.Now().Unix()
+			}
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val});
+		}
+		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "birthday", DisplayType: "date", Value: time.Now().Unix()})
 		finalMeta.Description = buildDescription(config, finalMeta)
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
@@ -314,7 +329,7 @@ func getRarityLevel(r conf.ConfigRarity, minRarity string) []string {
 	return rarity
 }
 
-func handleRarity(pieceTypes map[string]conf.ConfigAttribute, rarityData conf.ConfigRarity, outputOpt conf.OutputObject) (string, conf.ConfigAttribute) {
+func handleRarity(pieceTypes map[string]conf.PieceAttribute, rarityData conf.ConfigRarity, outputOpt conf.OutputObject) (string, conf.PieceAttribute) {
 	rarityLevel := getRarityLevel(rarityData, outputOpt.MinimumRarity)
 	var possiblePieces []string
 	for _, v := range rarityLevel {

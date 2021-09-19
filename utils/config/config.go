@@ -35,6 +35,7 @@ type OutputLocalObject struct {
 type ConfigSettings struct {
 	PieceOrder []string              `json:"piece-order,omitempty"`
 	Stats      map[string]ConfigStat `json:"stats,omitempty"`
+	Attributes map[string]ConfigAttribute		 `json:"attributes,omitempty"`
 	Rarity     ConfigRarity          `json:"rarity,omitempty"`
 	MaxWorkers float64               `json:"max-workers,omitempty"`
 }
@@ -59,12 +60,18 @@ type ConfigStat struct {
 	Value   int
 }
 
+type ConfigAttribute struct {
+	Name 	string 			`json:"name,omitempty"`
+	Type 	string 			`json:"type,omitempty"`
+	Value interface{} `json:"value,omitempty"`
+}
+
 type ConfigRarity struct {
 	Order   []string       `json:"order,omitempty"`
 	Chances map[string]int `json:"chances,omitempty"`
 }
 
-type ConfigAttribute struct {
+type PieceAttribute struct {
 	Rarity       string         `json:"rarity,omitempty"`
 	Stats        map[string]int `json:"stats,omitempty"`
 	FriendlyName string         `json:"friendly-name,omitempty"`
@@ -72,7 +79,7 @@ type ConfigAttribute struct {
 
 type ConfigPiece struct {
 	FriendlyName string                     `json:"friendly-name,omitempty"`
-	Pieces       map[string]ConfigAttribute `json:"pieces,omitempty"`
+	Pieces       map[string]PieceAttribute `json:"pieces,omitempty"`
 }
 
 func LoadConfig(path string) (Config, error) {
