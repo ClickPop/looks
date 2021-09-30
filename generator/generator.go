@@ -26,12 +26,17 @@ import (
 
 var wg sync.WaitGroup
 
-type Metadata struct {
+type PieceMetadata struct {
 	Piece        string
 	Type         string
 	Attributes   map[string]conf.ConfigStat
 	Rarity       string
 	FriendlyName string
+}
+
+type Metadata struct {
+	Type string
+	PieceMeta []PieceMetadata
 }
 
 type OpenSeaMeta struct {
@@ -157,8 +162,8 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			attr.Value = 0
 			stats[attr.Name] = attr
 		}
-		for j := 0; j < len(metadata); j++ {
-			currMeta := metadata[j]
+		for j := 0; j < len(metadata.PieceMeta); j++ {
+			currMeta := metadata.PieceMeta[j]
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: currMeta.Type, Value: currMeta.Piece})
 			sort.Slice(finalMeta.Attributes, func(i, j int) bool {
 				return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
@@ -184,6 +189,7 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			if name == "" {
 				name = k
 			}
+			
 			switch v.Type {
 			case "timestamp":
 				attrType = "date"
@@ -191,7 +197,9 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			}
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val});
 		}
-		finalMeta.Description = buildDescription(config, finalMeta)
+		description, name := buildDescription(config, finalMeta)
+		finalMeta.Description = description
+		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		if err != nil {
@@ -230,10 +238,10 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 	}
 }
 
-func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
+func loadFiles(config *conf.Config) ([]*bytes.Reader, Metadata, error) {
 	fileNames := config.Settings.PieceOrder
 	var files []*bytes.Reader
-	var metadata []Metadata
+	var metadata Metadata
 	for i := 0; i < len(fileNames); i++ {
 		file := fileNames[i]
 		pieceTypeFriendlyName := config.Attributes[file].FriendlyName
@@ -250,7 +258,7 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 			filename := fmt.Sprintf(config.Input.Local.Filename, file, piece)
 			data, err := os.ReadFile(fmt.Sprintf("%s/%s", config.Input.Local.Pathname, filename))
 			if err != nil {
-				return nil, nil, err
+				return nil, Metadata{}, err
 			}
 			files = append(files, bytes.NewReader(data))
 			stats := make(map[string]conf.ConfigStat)
@@ -263,7 +271,7 @@ func loadFiles(config *conf.Config) ([]*bytes.Reader, []Metadata, error) {
 				stat.Value = v
 				stats[k] = stat
 			}
-			metadata = append(metadata, Metadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: meta.Rarity, FriendlyName: meta.FriendlyName})
+			metadata.PieceMeta = append(metadata.PieceMeta, PieceMetadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: meta.Rarity, FriendlyName: meta.FriendlyName})
 		}
 	}
 
@@ -400,7 +408,7 @@ func checkHashes(outputDir string) error {
 	return nil
 }
 
-func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
+func buildDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
 	stats := make(map[string]int)
 	namesToKeys := make(map[string]string)
 	namesToKeys["fallback"] = "fallback"
@@ -423,7 +431,7 @@ func buildDescription(c *conf.Config, meta OpenSeaMeta) string {
 	randomHobbies := getRandomHobbies(c.Descriptions.Types[namesToKeys[primaryStat]].Hobbies, c.Descriptions.HobbiesCount)
 	currentType := c.Descriptions.Types[namesToKeys[primaryStat]].Name
 
-	return fmt.Sprintf(c.Descriptions.Template, currentType, randomDescriptor, randomHobbies)
+	return fmt.Sprintf(c.Descriptions.Template, currentType, randomDescriptor, randomHobbies), currentType
 }
 
 func getRandomDescriptor(descriptors []string) string {
