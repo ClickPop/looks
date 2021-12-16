@@ -62,7 +62,7 @@ type GeneratedRat struct {
 	Meta  *bytes.Buffer
 }
 
-func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]GeneratedRat, error) {
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), genMeta bool) ([]GeneratedRat, error) {
 	startTime := time.Now()
 
 	outputDir := config.Output.Local.Directory
@@ -98,7 +98,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		go makeFile(config, jobs, results, errChan)
+		go makeFile(config, jobs, results, errChan, genMeta)
 	}
 
 	for i := 0; i < image_count; i++ {
@@ -121,7 +121,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 	return assets, nil
 }
 
-func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
+func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error, genMeta bool) {
 	stats := make(map[string]int)
 	for k := range config.Settings.Stats {
 		stats[k] = 0
@@ -197,9 +197,11 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			}
 			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val});
 		}
-		description, name := buildDescription(config, finalMeta)
-		finalMeta.Description = description
-		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
+		if genMeta {
+			description, name := buildDescription(config, finalMeta)
+			finalMeta.Description = description
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
+		}
 		finalMeta.Name = fmt.Sprint(i)
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		if err != nil {
@@ -220,11 +222,13 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			png.Encode(out, img)
 			out.Close()
 			log.Printf("Image #%d.png created\n", i)
-			err = os.WriteFile(fmt.Sprintf("./%s/%d.json", config.Output.Local.Directory, i), jsonData, 0666)
-			if err != nil {
-				errChan <- err
+			if genMeta {
+				err = os.WriteFile(fmt.Sprintf("./%s/%d.json", config.Output.Local.Directory, i), jsonData, 0666)
+				if err != nil {
+					errChan <- err
+				}
+				log.Printf("Metadata #%d.json created\n", i)
 			}
-			log.Printf("Metadata #%d.json created\n", i)
 		}
 		if results != nil {
 			results <- GeneratedRat{Image: imageOut, Meta: metaOut}

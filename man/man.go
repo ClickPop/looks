@@ -6,9 +6,12 @@ const ROOT_HELP_MENU = `Looks is a tool for artists to have easier access to gen
 
 Usage:
 
-	looks <command> [arguments]
+	looks <command> [arguments] [flags]
 
 Commands:
 
 	generate	Generates new pieces from given assets
-`
+
+Flags:
+
+	--no-meta  skip generating metadata`
