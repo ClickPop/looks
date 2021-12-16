@@ -29,7 +29,11 @@ func main() {
 	case "gen":
 		fallthrough
 	case "generate":
-		_, err = generator.Generate(&conf, nil)
+		genMeta := true
+		if args[1] == "--no-meta" {
+			genMeta = false
+		}
+		_, err = generator.Generate(&conf, nil, genMeta)
 		if err != nil {
 			log.Fatal(err)
 		}
