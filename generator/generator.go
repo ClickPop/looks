@@ -35,7 +35,7 @@ type PieceMetadata struct {
 }
 
 type Metadata struct {
-	Type string
+	Type      string
 	PieceMeta []PieceMetadata
 }
 
@@ -189,13 +189,13 @@ func makeFile(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat,
 			if name == "" {
 				name = k
 			}
-			
+
 			switch v.Type {
 			case "timestamp":
 				attrType = "date"
 				val = time.Now().Unix()
 			}
-			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val});
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: name, DisplayType: attrType, Value: val})
 		}
 		if genMeta {
 			description, name := buildDescription(config, finalMeta)
