@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/clickpop/looks/generator"
+	"github.com/clickpop/looks/pkg/generator"
 	"github.com/spf13/cobra"
 )
 

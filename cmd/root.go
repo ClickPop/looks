@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/clickpop/looks/utils/config"
+	"github.com/clickpop/looks/pkg/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
