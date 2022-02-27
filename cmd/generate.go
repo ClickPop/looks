@@ -11,7 +11,7 @@ var (
 		Short: "Command to generate images/meta",
 		Long:  "Generate images/metadata based on supplied files/config",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_, err := generator.Generate(cfg, nil, cfg.Output.IncludeMeta)
+			_, err := generator.Generate(cfg, nil)
 			if err != nil {
 				return err
 			}

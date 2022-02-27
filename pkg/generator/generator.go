@@ -2,6 +2,8 @@ package generator
 
 import (
 	"bytes"
+	CSV "encoding/csv"
+	"fmt"
 	"image"
 	"image/png"
 	"log"
@@ -58,9 +60,10 @@ type Job struct {
 	outFile *os.File
 }
 
-func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), genMeta bool) ([]GeneratedRat, error) {
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]GeneratedRat, error) {
 	startTime := time.Now()
-
+	buildCsvHeading(config)
+	log.Println(csv)
 	outputDir := config.Output.Local.Directory
 	if (config.Output == conf.OutputObject{}) {
 		config.Output.Internal = true
@@ -85,9 +88,8 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), genMet
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		go buildAsset(config, jobs, results, errChan, genMeta)
+		go buildAsset(config, jobs, results, errChan)
 	}
-
 	for i := 0; i < image_count; i++ {
 		jobs <- i
 	}
@@ -98,6 +100,18 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), genMet
 		assets = append(assets, r)
 	}
 	wg.Wait()
+	if config.Output.MetaFormat == conf.CSV {
+		metaFile, err := os.Create(fmt.Sprintf("%s/meta.csv", config.Output.Local.Directory))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer metaFile.Close()
+		w := CSV.NewWriter(metaFile)
+		err = w.WriteAll(csv)
+		if err != nil {
+			log.Fatal("Error writing csv:", err)
+		}
+	}
 	log.Printf("Generated %d files in directory %s in %d seconds.\n", image_count, outputDir, int(time.Since(startTime).Seconds()))
 	if outputDir != "" && hashCheckCb == nil {
 		err = checkHashes(outputDir)
@@ -108,7 +122,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), genMet
 	return assets, nil
 }
 
-func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error, genMeta bool) {
+func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
 	stats := make(map[string]int)
 	for k := range config.Settings.Stats {
 		stats[k] = 0
@@ -129,19 +143,22 @@ func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRa
 		imageOut := new(bytes.Buffer)
 		metaOut := new(bytes.Buffer)
 		img := buildImage(images, i)
-		jsonData, err := generateMeta(metadata, config, genMeta, i)
+		var meta []byte
+		if (config.Output.IncludeMeta) {
+			meta, err = generateMeta(metadata, config, i)
+		}
 		if err != nil {
 			errChan <- err
 		}
 		if config.Output.Internal {
 			png.Encode(imageOut, img)
-			metaOut.Write(jsonData)
+			metaOut.Write(meta)
 		} else {
 			imageOut = nil
 			metaOut = nil
 		}
 		if config.Output.Local.Directory != "" {
-			err = storeFile(config, img, jsonData, genMeta, i)
+			err = storeFile(config, img, meta, i)
 			if err != nil {
 				errChan <- err
 			}
