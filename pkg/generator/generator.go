@@ -8,6 +8,8 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"sync"
 	"time"
 
@@ -88,7 +90,7 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 
 	log.Printf("Spinning up %d workers", int(num_workers))
 	for w := 0; w < int(num_workers); w++ {
-		go buildAsset(config, jobs, results, errChan)
+		go handleJob(config, jobs, results, errChan)
 	}
 	for i := 0; i < image_count; i++ {
 		jobs <- i
@@ -114,31 +116,69 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) ([]Gen
 	}
 	log.Printf("Generated %d files in directory %s in %d seconds.\n", image_count, outputDir, int(time.Since(startTime).Seconds()))
 	if outputDir != "" && hashCheckCb == nil {
-		err = checkHashes(outputDir)
-		if err != nil {
-			return nil, err
+		noCollisions := false
+		for !noCollisions {
+			collisions, err := checkHashes(outputDir)
+			if err != nil {
+				return nil, err
+			}
+			re := regexp.MustCompile(`^(.*/)?(?:$|(.+?)(?:(\.[^.]*$)|$))`)
+			for _, path := range collisions {
+				match := re.FindStringSubmatch(path)
+				if len(match) > 2 {
+					str := match[2]
+					val, err := strconv.Atoi(str)
+					if err != nil {
+						return nil, err
+					}
+					stats := buildStats(config)
+					asset, err := buildAsset(config, val, stats)
+					if err != nil {
+						return nil, err
+					}
+					assets = append(assets, asset)
+				}
+			}
+			if len(collisions) < 1 {
+				noCollisions = true
+			}
 		}
 	}
 	return assets, nil
 }
 
-func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
-	stats := make(map[string]int)
-	for k := range config.Settings.Stats {
-		stats[k] = 0
-	}
+func handleJob(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat, errChan chan<- error) {
+	stats := buildStats(config)
 
 	for job := range jobs {
 		i := job
+		rat, err := buildAsset(config, i, stats)
+		if err != nil {
+			errChan <- err
+		}
+		if results != nil {
+			results <- rat
+		}
+		wg.Done()
+		config.Output.ImageCount -= 1
+	}
+	if config.Output.ImageCount == 0 {
+		close(results)
+		close(errChan)
+	}
+}
+
+func buildAsset(config *conf.Config, jobId int, stats map[string]int) (GeneratedRat, error) {
+		i := jobId
 		log.Printf("Loading files for image #%d\n", i)
 		files, metadata, err := loadFiles(config)
 		if err != nil {
-			errChan <- err
+			return GeneratedRat{}, nil
 		}
 		log.Printf("Decoding data for image #%d\n", i)
 		images, err := getImages(files)
 		if err != nil {
-			errChan <- err
+			return GeneratedRat{}, nil
 		}
 		imageOut := new(bytes.Buffer)
 		metaOut := new(bytes.Buffer)
@@ -148,7 +188,7 @@ func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRa
 			meta, err = generateMeta(metadata, config, i)
 		}
 		if err != nil {
-			errChan <- err
+			return GeneratedRat{}, nil
 		}
 		if config.Output.Internal {
 			png.Encode(imageOut, img)
@@ -160,17 +200,8 @@ func buildAsset(config *conf.Config, jobs <-chan int, results chan<- GeneratedRa
 		if config.Output.Local.Directory != "" {
 			err = storeFile(config, img, meta, i)
 			if err != nil {
-				errChan <- err
+				return GeneratedRat{}, nil
 			}
 		}
-		if results != nil {
-			results <- GeneratedRat{Image: imageOut, Meta: metaOut}
-		}
-		wg.Done()
-		config.Output.ImageCount -= 1
-	}
-	if config.Output.ImageCount == 0 {
-		close(results)
-		close(errChan)
-	}
+		return GeneratedRat{Image: imageOut, Meta: metaOut}, nil	
 }
