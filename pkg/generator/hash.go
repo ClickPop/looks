@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -13,14 +12,15 @@ import (
 	"strings"
 )
 
-func checkHashes(outputDir string) error {
+func checkHashes(outputDir string) ([]string, error) {
 	hashes := make(map[string]string)
+	collisions := make([]string, 0)
 	log.Println("Checking hashes for collisions...")
 	_, err := os.Stat(outputDir)
 	if os.IsNotExist(err) {
 		os.Mkdir(outputDir, 0777)
 	} else if err != nil {
-		return err
+		return []string{}, err
 	}
 	err = filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -38,15 +38,19 @@ func checkHashes(outputDir string) error {
 			hash := hex.EncodeToString(hasher.Sum(nil))
 			if hashes[hash] != "" {
 				log.Println("COLLISION", hashes[hash], path)
-				return fmt.Errorf("COLLISION: %s & %s", hashes[hash], path)
+				collisions = append(collisions, path)
+			} else {
+				hashes[hash] = path
 			}
-			hashes[hash] = path
 		}
 		return err
 	})
 	if err != nil {
-		return err
+		return []string{}, err
+	}
+	if len(collisions) > 0 {
+		return collisions, err
 	}
 	log.Println("All hashes unique")
-	return nil
+	return []string{}, nil
 }
