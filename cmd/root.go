@@ -54,7 +54,7 @@ func init() {
 func initConfig() {
 	viper.SetConfigFile(cfgFile)
 	if err := viper.ReadInConfig(); err != nil {
-	if _, ok := err.(viper.ConfigFileNotFoundError); ok || strings.Contains(err.Error(), "no such file") {
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok || strings.Contains(err.Error(), "no such file") || strings.Contains(err.Error(), "cannot find") {
 		for _, arg := range os.Args {
       if arg == "init" {
         break
