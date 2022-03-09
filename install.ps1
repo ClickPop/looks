@@ -13,4 +13,8 @@ if ( -not ( Test-Path -Path $LOOKS_PATH ) ) {
   New-Item -Path "C:\" -Name "looks" -ItemType "directory"
 }
 
+if ( -not $IN_PATH ) {
+  [Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";" + $LOOKS_PATH, [EnvironmentVariableTarget]::Machine)
+}
+
 Invoke-RestMethod -Uri $URI -OutFile $LOOKS_FILE
