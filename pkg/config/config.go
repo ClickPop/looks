@@ -6,10 +6,11 @@ import (
 )
 
 type MetaFormat string
+type DescriptionFormat string
 
 const (
 	JSON MetaFormat = "json"
-	CSV             = "csv"
+	CSV  MetaFormat = "csv"
 )
 
 type Config struct {
@@ -52,11 +53,12 @@ type ConfigSettings struct {
 type ConfigDescriptions struct {
 	Template            string                            `json:"template" yaml:"template" toml:"template" mapstructure:"template"`
 	FallbackPrimaryStat string                            `json:"fallback-primary-stat" yaml:"fallback-primary-stat" toml:"fallback-primary-stat" mapstructure:"fallback-primary-stat"`
-	HobbiesCount        int                               `json:"hobbies-count" yaml:"hobbies-count" toml:"hobbies-count" mapstructure:"hobbies-count"`
-	Types               map[string]ConfigDescriptionTypes `json:"types" yaml:"types" toml:"types" mapstructure:"types"`
+	FragmentCount       int                               `json:"fragment-count" yaml:"fragment-count" toml:"fragment-count" mapstructure:"fragment-count"`
+	StatFragments       map[string]ConfigDescriptionTypes `json:"stat-fragments" yaml:"stat-fragments" toml:"stat-fragments" mapstructure:"stat-fragments"`
+	SimpleFragments     []string                          `json:"simple-fragments" yaml:"simple-fragments" toml:"simple-fragments" mapstructure:"simple-fragments"`
 }
+
 type ConfigDescriptionTypes struct {
-	ID          string   `json:"id" yaml:"id" toml:"id" mapstructure:"id"`
 	Name        string   `json:"name" yaml:"name" toml:"name" mapstructure:"name"`
 	Descriptors []string `json:"descriptors" yaml:"descriptors" toml:"descriptors" mapstructure:"descriptors"`
 	Hobbies     []string `json:"hobbies" yaml:"hobbies" toml:"hobbies" mapstructure:"hobbies"`
@@ -101,9 +103,9 @@ func LoadConfig(path string) (Config, error) {
 	if err != nil {
 		return config, err
 	}
-		err = json.Unmarshal(data, &config)
-		if err != nil {
-			return config, err
-		}
+	err = json.Unmarshal(data, &config)
+	if err != nil {
+		return config, err
+	}
 	return config, nil
 }

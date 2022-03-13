@@ -26,7 +26,7 @@ var (
 		Short: "Initialize a skeleton config file",
 		Long:  "Builds a skeleton config file with sensible defaults where possible",
 		Run: func(cmd *cobra.Command, args []string) {
-      storeConfig()
+			storeConfig()
 		},
 	}
 )
@@ -54,31 +54,31 @@ func init() {
 func initConfig() {
 	viper.SetConfigFile(cfgFile)
 	if err := viper.ReadInConfig(); err != nil {
-	if _, ok := err.(viper.ConfigFileNotFoundError); ok || strings.Contains(err.Error(), "no such file") || strings.Contains(err.Error(), "cannot find") {
-		for _, arg := range os.Args {
-      if arg == "init" {
-        break
-      }
-    }
-  } else {
-		log.Fatal(err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok || strings.Contains(err.Error(), "no such file") || strings.Contains(err.Error(), "cannot find") {
+			for _, arg := range os.Args {
+				if arg == "init" {
+					break
+				}
+			}
+		} else {
+			log.Fatal(err)
+		}
 	}
-}
 	viper.Unmarshal(&cfg)
 }
 
 func storeConfig() {
-  viper.Reset()
+	viper.Reset()
 	viper.AddConfigPath(cfgPathname)
-  viper.SetConfigType(cfgFiletype)
-  viper.SetConfigName(cfgFilename)
-  viper.SetDefault("input", &config.InputObject{Local: config.InputLocalObject{Pathname: "pieces", Filename: "%s-%s.png"}})
-  viper.SetDefault("output", &config.OutputObject{Local: config.OutputLocalObject{Directory: "generated"}, ImageCount: 100, IncludeMeta: true, MetaFormat: config.JSON})
-  viper.SetDefault("settings", &config.ConfigSettings{MaxWorkers: 3})
-  viper.SetDefault("attributes", map[string]config.ConfigPiece{})
-  viper.SetDefault("descriptions", config.ConfigDescriptions{})
-  err := viper.SafeWriteConfig()
-  if err != nil {
-    log.Fatal(err)
-  }
+	viper.SetConfigType(cfgFiletype)
+	viper.SetConfigName(cfgFilename)
+	viper.SetDefault("input", &config.InputObject{Local: config.InputLocalObject{Pathname: "pieces", Filename: "%s-%s.png"}})
+	viper.SetDefault("output", &config.OutputObject{Local: config.OutputLocalObject{Directory: "generated"}, ImageCount: 100, IncludeMeta: true, MetaFormat: config.JSON})
+	viper.SetDefault("settings", &config.ConfigSettings{MaxWorkers: 3})
+	viper.SetDefault("attributes", map[string]config.ConfigPiece{})
+	viper.SetDefault("descriptions", config.ConfigDescriptions{})
+	err := viper.SafeWriteConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
