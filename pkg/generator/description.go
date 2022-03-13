@@ -10,6 +10,32 @@ import (
 )
 
 func buildDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
+	switch {
+	case c.Descriptions.SimpleFragments != nil && len(c.Descriptions.SimpleFragments) > 0:
+		return buildSimpleDescription(c, meta)
+	case c.Descriptions.StatFragments != nil:
+		return buildStatDescription(c, meta)
+	}
+	return "", ""
+}
+
+func buildSimpleDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
+	fragments := make([]string, 0)
+	fragmentMap := make(map[string]bool, c.Descriptions.FragmentCount)
+	for len(fragmentMap) < c.Descriptions.FragmentCount {
+		rand.Seed(time.Now().Unix() + int64(time.Now().Nanosecond()))
+		fragment := c.Descriptions.SimpleFragments[rand.Intn(len(c.Descriptions.SimpleFragments))]
+		fragmentMap[fragment] = true
+	}
+
+	for k := range fragmentMap {
+		fragments = append(fragments, k)
+	}
+
+	return fmt.Sprintf(c.Descriptions.Template, utils.OxfordJoin(fragments)), ""
+}
+
+func buildStatDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
 	stats := make(map[string]int)
 	namesToKeys := make(map[string]string)
 	namesToKeys["fallback"] = "fallback"
@@ -27,10 +53,11 @@ func buildDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
 			stats[v.TraitType] += v.Value.(int)
 		}
 	}
+	
 	primaryStat := getPrimaryStat(stats, c.Descriptions.FallbackPrimaryStat)
-	randomDescriptor := getRandomDescriptor(c.Descriptions.Types[namesToKeys[primaryStat]].Descriptors)
-	randomHobbies := getRandomHobbies(c.Descriptions.Types[namesToKeys[primaryStat]].Hobbies, c.Descriptions.HobbiesCount)
-	currentType := c.Descriptions.Types[namesToKeys[primaryStat]].Name
+	randomDescriptor := getRandomDescriptor(c.Descriptions.StatFragments[namesToKeys[primaryStat]].Descriptors)
+	randomHobbies := getRandomHobbies(c.Descriptions.StatFragments[namesToKeys[primaryStat]].Hobbies, c.Descriptions.FragmentCount)
+	currentType := c.Descriptions.StatFragments[namesToKeys[primaryStat]].Name
 
 	return fmt.Sprintf(c.Descriptions.Template, currentType, randomDescriptor, randomHobbies), currentType
 }

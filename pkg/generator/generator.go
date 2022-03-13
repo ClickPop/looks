@@ -55,9 +55,9 @@ type GeneratedRat struct {
 }
 
 type Job struct {
-	id int
+	id      int
 	results chan GeneratedRat
-	errors chan error
+	errors  chan error
 	currImg *image.RGBA
 	outFile *os.File
 }
@@ -169,39 +169,39 @@ func handleJob(config *conf.Config, jobs <-chan int, results chan<- GeneratedRat
 }
 
 func buildAsset(config *conf.Config, jobId int, stats map[string]int) (GeneratedRat, error) {
-		i := jobId
-		log.Printf("Loading files for image #%d\n", i)
-		files, metadata, err := loadFiles(config)
+	i := jobId
+	log.Printf("Loading files for image #%d\n", i)
+	files, metadata, err := loadFiles(config)
+	if err != nil {
+		return GeneratedRat{}, nil
+	}
+	log.Printf("Decoding data for image #%d\n", i)
+	images, err := getImages(files)
+	if err != nil {
+		return GeneratedRat{}, nil
+	}
+	imageOut := new(bytes.Buffer)
+	metaOut := new(bytes.Buffer)
+	img := buildImage(images, i)
+	var meta []byte
+	if config.Output.IncludeMeta {
+		meta, err = generateMeta(metadata, config, i)
+	}
+	if err != nil {
+		return GeneratedRat{}, nil
+	}
+	if config.Output.Internal {
+		png.Encode(imageOut, img)
+		metaOut.Write(meta)
+	} else {
+		imageOut = nil
+		metaOut = nil
+	}
+	if config.Output.Local.Directory != "" {
+		err = storeFile(config, img, meta, i)
 		if err != nil {
 			return GeneratedRat{}, nil
 		}
-		log.Printf("Decoding data for image #%d\n", i)
-		images, err := getImages(files)
-		if err != nil {
-			return GeneratedRat{}, nil
-		}
-		imageOut := new(bytes.Buffer)
-		metaOut := new(bytes.Buffer)
-		img := buildImage(images, i)
-		var meta []byte
-		if (config.Output.IncludeMeta) {
-			meta, err = generateMeta(metadata, config, i)
-		}
-		if err != nil {
-			return GeneratedRat{}, nil
-		}
-		if config.Output.Internal {
-			png.Encode(imageOut, img)
-			metaOut.Write(meta)
-		} else {
-			imageOut = nil
-			metaOut = nil
-		}
-		if config.Output.Local.Directory != "" {
-			err = storeFile(config, img, meta, i)
-			if err != nil {
-				return GeneratedRat{}, nil
-			}
-		}
-		return GeneratedRat{Image: imageOut, Meta: metaOut}, nil	
+	}
+	return GeneratedRat{Image: imageOut, Meta: metaOut}, nil
 }
