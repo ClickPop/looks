@@ -105,7 +105,7 @@ func buildCsvRow(meta OpenSeaMeta) {
 					row = append(row, val)
 				}
 			}
-			
+
 			if val, ok := rowMap[col].(int); ok {
 				if val != 0 {
 					row = append(row, fmt.Sprint(val))
