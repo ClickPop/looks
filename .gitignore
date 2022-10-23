@@ -19,3 +19,4 @@ rats/
 bin/
 pieces/
 config.json
+config.yaml
