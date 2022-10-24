@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"log"
 	"os"
 
 	conf "github.com/clickpop/looks/pkg/config"
@@ -17,13 +16,11 @@ func storeFile(config *conf.Config, img image.Image, jsonData []byte, i int) err
 	}
 	png.Encode(out, img)
 	out.Close()
-	log.Printf("Image #%d.png created\n", i)
 	if config.Output.IncludeMeta && config.Output.MetaFormat == conf.JSON && jsonData != nil {
 		err = os.WriteFile(fmt.Sprintf("./%s/%d.json", config.Output.Local.Directory, i), jsonData, 0666)
 		if err != nil {
 			return err
 		}
-		log.Printf("Metadata #%d.json created\n", i)
 	}
 	return nil
 }

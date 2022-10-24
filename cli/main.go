@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/clickpop/looks/cmd"
+	"github.com/clickpop/looks-cli/cmd"
 )
 
 func main() {

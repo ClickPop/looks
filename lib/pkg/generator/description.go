@@ -53,7 +53,7 @@ func buildStatDescription(c *conf.Config, meta OpenSeaMeta) (string, string) {
 			stats[v.TraitType] += v.Value.(int)
 		}
 	}
-	
+
 	primaryStat := getPrimaryStat(stats, c.Descriptions.FallbackPrimaryStat)
 	randomDescriptor := getRandomDescriptor(c.Descriptions.StatFragments[namesToKeys[primaryStat]].Descriptors)
 	randomHobbies := getRandomHobbies(c.Descriptions.StatFragments[namesToKeys[primaryStat]].Hobbies, c.Descriptions.FragmentCount)

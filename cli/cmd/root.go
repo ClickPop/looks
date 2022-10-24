@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	conf "github.com/clickpop/looks-cli/pkg/config"
 	"github.com/clickpop/looks/pkg/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -65,6 +66,7 @@ func initConfig() {
 		}
 	}
 	viper.Unmarshal(&cfg)
+	conf.ValidateConfig(cfg)
 }
 
 func storeConfig() {

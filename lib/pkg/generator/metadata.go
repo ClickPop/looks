@@ -10,9 +10,28 @@ import (
 	conf "github.com/clickpop/looks/pkg/config"
 )
 
-var csv [][]string
+func computeMetadata(finalMeta OpenSeaMeta, stats map[string]conf.ConfigStat, pieces []*PieceMetadata) (OpenSeaMeta, map[string]conf.ConfigStat) {
+	for _, piece := range pieces {
+    finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: piece.Type, Value: piece.Piece})
+    sort.Slice(finalMeta.Attributes, func(i, j int) bool {
+      return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
+    })
+    for _, v := range piece.Attributes {
+      attr := stats[v.Name]
+      attr.Value += v.Value
+      if attr.Value >= v.Maximum {
+        attr.Value = v.Maximum
+      } else if attr.Value <= v.Minimum {
+        attr.Value = v.Minimum
+      }
+      stats[v.Name] = attr
+    }
+	}
 
-func generateMeta(metadata Metadata, config *conf.Config, i int) ([]byte, error) {
+  return finalMeta, stats
+}
+
+func generateMeta(pieces []*PieceMetadata, metadata chan<- *[]byte, errChan chan<- error, config *conf.Config, jobId int) {
 	var finalMeta OpenSeaMeta
 	finalMeta.Attributes = make([]OpenSeaAttribute, 0)
 	stats := make(map[string]conf.ConfigStat)
@@ -21,23 +40,13 @@ func generateMeta(metadata Metadata, config *conf.Config, i int) ([]byte, error)
 		attr.Value = 0
 		stats[attr.Name] = attr
 	}
-	for j := 0; j < len(metadata.PieceMeta); j++ {
-		currMeta := metadata.PieceMeta[j]
-		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: currMeta.Type, Value: currMeta.Piece})
-		sort.Slice(finalMeta.Attributes, func(i, j int) bool {
-			return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
-		})
-		for _, v := range currMeta.Attributes {
-			attr := stats[v.Name]
-			attr.Value += v.Value
-			if attr.Value >= v.Maximum {
-				attr.Value = v.Maximum
-			} else if attr.Value <= v.Minimum {
-				attr.Value = v.Minimum
-			}
-			stats[v.Name] = attr
-		}
+	var headings []string
+	if config.Output.MetaFormat == conf.CSV {
+		headings = getCSVCols(config)
 	}
+
+	finalMeta, stats = computeMetadata(finalMeta, stats, pieces)
+
 	for k, v := range stats {
 		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: k, Value: v.Value, DisplayType: "number", MaxValue: v.Maximum})
 	}
@@ -61,23 +70,20 @@ func generateMeta(metadata Metadata, config *conf.Config, i int) ([]byte, error)
 		finalMeta.Description = description
 		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
 	}
-	finalMeta.Name = fmt.Sprint(i)
+	finalMeta.Name = fmt.Sprint(jobId)
 	switch config.Output.MetaFormat {
 	case conf.JSON:
 		jsonData, err := json.MarshalIndent(finalMeta, "", "  ")
 		if err != nil {
-			return nil, err
+			errChan <- err
 		}
-		return jsonData, nil
+		metadata <- &jsonData
 	case conf.CSV:
-		buildCsvRow(finalMeta)
-		return nil, nil
+		metadata <- buildCsvRow(headings, finalMeta)
 	}
-	return nil, nil
 }
 
-func buildCsvHeading(config *conf.Config) {
-	csv = make([][]string, 0)
+func getCSVCols(config *conf.Config) []string {
 	headings := make([]string, 0)
 	headings = append(headings, "Name")
 	headings = append(headings, "Description")
@@ -87,10 +93,16 @@ func buildCsvHeading(config *conf.Config) {
 	for k := range config.Settings.Stats {
 		headings = append(headings, strings.Title(k))
 	}
-	csv = append(csv, headings)
+	return headings
 }
 
-func buildCsvRow(meta OpenSeaMeta) {
+func buildCsvHeading(config *conf.Config) *[]byte {
+	headings := getCSVCols(config)
+	slice := []byte(strings.Join(headings, ","))
+	return &slice
+}
+
+func buildCsvRow(headings []string, meta OpenSeaMeta) *[]byte {
 	rowMap := make(map[string]interface{})
 	rowMap["Name"] = meta.Name
 	rowMap["Description"] = meta.Description
@@ -98,7 +110,7 @@ func buildCsvRow(meta OpenSeaMeta) {
 		rowMap[strings.Title(attribute.TraitType)] = attribute.Value
 	}
 	row := make([]string, 0)
-	for _, col := range csv[0] {
+	for _, col := range headings {
 		if rowMap[col] != nil {
 			if val, ok := rowMap[col].(string); ok {
 				if val != "" {
@@ -115,5 +127,6 @@ func buildCsvRow(meta OpenSeaMeta) {
 			row = append(row, "")
 		}
 	}
-	csv = append(csv, row)
+	slice := []byte(strings.Join(row, ","))
+	return &slice
 }

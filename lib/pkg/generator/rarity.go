@@ -66,12 +66,30 @@ func getRarityLevel(r config.ConfigRarity, minRarity string) []string {
 	return rarity
 }
 
-func handleRarity(pieceTypes map[string]config.PieceAttribute, rarityData config.ConfigRarity, outputOpt config.OutputObject) (string, config.PieceAttribute) {
+func tagCheck(piece config.PieceAttribute, tags map[string]bool, tagsConfig config.TagConfigSettings) bool {
+	for _, tag := range piece.Tags {
+		for _, excludeTag := range tagsConfig.Exclusive[tag] {
+			if _, ok := tags[excludeTag]; ok {
+				return false
+			}
+		}
+
+		for _, includeTag := range tagsConfig.Inclusive[tag] {
+			if _, ok := tags[includeTag]; !ok {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func handleRarity(pieceTypes map[string]config.PieceAttribute, rarityData config.ConfigRarity, outputOpt config.OutputObject, tagConfig config.TagConfigSettings, tags map[string]bool) (string, config.PieceAttribute) {
 	rarityLevel := getRarityLevel(rarityData, outputOpt.MinimumRarity)
 	var possiblePieces []string
 	for _, v := range rarityLevel {
 		for key, piece := range pieceTypes {
-			if v == piece.Rarity {
+			if v == piece.Rarity || tagCheck(piece, tags, tagConfig) {
 				possiblePieces = append(possiblePieces, key)
 			}
 		}
@@ -82,7 +100,6 @@ func handleRarity(pieceTypes map[string]config.PieceAttribute, rarityData config
 
 	seed := time.Now().Unix() + int64(time.Now().Nanosecond())
 	rand.Seed(seed)
-
 	random := rand.Intn(len(possiblePieces))
 	choice := possiblePieces[random]
 	return choice, pieceTypes[choice]

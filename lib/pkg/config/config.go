@@ -1,16 +1,18 @@
 package config
 
-import (
-	"encoding/json"
-	"io/ioutil"
-)
-
+type ConfigFormat string
 type MetaFormat string
 type DescriptionFormat string
 
 const (
 	JSON MetaFormat = "json"
 	CSV  MetaFormat = "csv"
+)
+
+const (
+	JSON_CONFIG ConfigFormat = "json"
+	YAML_CONFIG ConfigFormat = "yaml"
+	TOML_CONFIG ConfigFormat = "toml"
 )
 
 type Config struct {
@@ -48,6 +50,12 @@ type ConfigSettings struct {
 	Attributes map[string]ConfigAttribute `json:"attributes" yaml:"attributes" toml:"attributes" mapstructure:"attributes"`
 	Rarity     ConfigRarity               `json:"rarity" yaml:"rarity" toml:"rarity" mapstructure:"rarity"`
 	MaxWorkers float64                    `json:"max-workers" yaml:"max-workers" toml:"max-workers" mapstructure:"max-workers"`
+	Tags       TagConfigSettings          `json:"tags" yaml:"tags" toml:"tags" mapstructure:"tags"`
+}
+
+type TagConfigSettings struct {
+	Inclusive map[string][]string `json:"inclusive" yaml:"inclusive" toml:"inclusive" mapstructure:"inclusive"`
+	Exclusive map[string][]string `json:"exclusive" yaml:"exclusive" toml:"exclusive" mapstructure:"exclusive"`
 }
 
 type ConfigDescriptions struct {
@@ -85,27 +93,11 @@ type ConfigRarity struct {
 type PieceAttribute struct {
 	Rarity       string         `json:"rarity" yaml:"rarity" toml:"rarity" mapstructure:"rarity"`
 	Stats        map[string]int `json:"stats" yaml:"stats" toml:"stats" mapstructure:"stats"`
+	Tags         []string       `json:"tags" yaml:"tags" toml:"tags" mapstructure:"tags"`
 	FriendlyName string         `json:"friendly-name" yaml:"friendly-name" toml:"friendly-name" mapstructure:"friendly-name"`
 }
 
 type ConfigPiece struct {
 	FriendlyName string                    `json:"friendly-name" yaml:"friendly-name" toml:"friendly-name" mapstructure:"friendly-name"`
 	Pieces       map[string]PieceAttribute `json:"pieces" yaml:"pieces" toml:"pieces" mapstructure:"pieces"`
-}
-
-func LoadConfig(path string) (Config, error) {
-	var config Config
-	filePath := path
-	if path == "" {
-		filePath = "./config.json"
-	}
-	data, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return config, err
-	}
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		return config, err
-	}
-	return config, nil
 }
