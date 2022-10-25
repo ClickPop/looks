@@ -89,7 +89,7 @@ func handleRarity(pieceTypes map[string]config.PieceAttribute, rarityData config
 	var possiblePieces []string
 	for _, v := range rarityLevel {
 		for key, piece := range pieceTypes {
-			if v == piece.Rarity || tagCheck(piece, tags, tagConfig) {
+			if v == piece.Rarity && tagCheck(piece, tags, tagConfig) {
 				possiblePieces = append(possiblePieces, key)
 			}
 		}

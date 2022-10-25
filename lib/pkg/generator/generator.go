@@ -75,18 +75,17 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) (Asset
 		jobs <- i
 	}
 	close(jobs)
-
 	var assets []GeneratedAsset
 	heading := buildCsvHeading(config)
 	csv := bytes.NewBuffer(*heading)
 	for {
 		select {
-		case asset, closed := <-results:
+		case asset, open := <-results:
 			assets = append(assets, asset)
 			if config.Output.MetaFormat == conf.CSV {
 				csv.Write(asset.Meta.Bytes())
 			}
-			if closed {
+			if !open {
 				return AssetsResult{Assets: assets, CSV: csv}, nil
 			}
 		case err := <-errChan:
@@ -99,43 +98,32 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config)) (Asset
 
 func handleJob(config *conf.Config, jobs <-chan int, results chan<- GeneratedAsset, errChan chan<- error) {
 	stats := buildStats(config)
-	imageCount := config.Output.ImageCount
 	for job := range jobs {
-		asset, err := buildAsset(config, job, stats)
+    asset, err := buildAsset(config, job, stats)
 		if err != nil {
 			errChan <- err
 		}
 		if results != nil {
 			results <- asset
 		}
-		imageCount -= 1
 	}
-	if imageCount == 0 {
-		close(results)
-		close(errChan)
-	}
+  close(results)
+  close(errChan)
 }
 
 func computeLayers(images <-chan *ImageWithPosition, size int) []*image.Image {
 	layers := make([]*image.Image, size)
-	for {
-		select {
-		case img, open := <-images:
-			if !open {
-				return layers
-			}
-			layers[img.Position] = img.Image
-		}
+  for img := range images {
+    layers[img.Position] = img.Image
 	}
+  return layers
 }
 
 func computeMeta(metadata <-chan *[]byte) []byte {
-	for {
-		select {
-		case data := <-metadata:
-			return *data
-		}
+  for data := range metadata {
+    return *data
 	}
+  return nil
 }
 
 func buildAsset(config *conf.Config, jobId int, stats map[string]int) (GeneratedAsset, error) {
