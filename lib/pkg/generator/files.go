@@ -22,28 +22,23 @@ func loadFiles(pieces []string, files chan<- *FileWithPosition, errChan chan<- e
 			return
 		}
 		files <- &FileWithPosition{File: bytes.NewReader(file), Position: position}
-		if position+1 == len(pieces) {
-			close(files)
-		}
 	}
+  close(files)
 }
 
 func loadPieces(config *conf.Config) ([]string, []*PieceMetadata) {
 	tags := make(map[string]bool)
+  variant := ""
 	pieces := make([]string, len(config.Settings.PieceOrder))
   metadata := make([]*PieceMetadata, len(config.Settings.PieceOrder))
 	for position, pieceType := range config.Settings.PieceOrder {
-		pieceTypeFriendlyName := config.Attributes[pieceType].FriendlyName
+    pieceTypeFriendlyName := config.Attributes[pieceType].FriendlyName
 		if pieceTypeFriendlyName == "" {
 			pieceTypeFriendlyName = utils.TransformName(pieceType)
 		}
-    piece, meta := handleRarity(config.Attributes[pieceType].Pieces, config.Settings.Rarity, config.Output, config.Settings.Tags, tags)
-
+    piece, meta, v, pieceFriendlyName := handleRarity(config.Attributes[pieceType].Pieces, config, tags, variant, position)
+    variant = v
 		if piece != "nil" {
-			pieceFriendlyName := config.Attributes[pieceType].Pieces[piece].FriendlyName
-			if pieceFriendlyName == "" {
-				pieceFriendlyName = utils.TransformName(piece)
-			}
 			fileName := fmt.Sprintf(config.Input.Local.Filename, pieceType, piece)
 			filePath := fmt.Sprintf("%s/%s", config.Input.Local.Pathname, fileName)
 			stats := make(map[string]conf.ConfigStat)
@@ -61,7 +56,14 @@ func loadPieces(config *conf.Config) ([]string, []*PieceMetadata) {
 					tags[tag] = true
 				}
 			}
-			metadata[position] = &PieceMetadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: meta.Rarity, FriendlyName: meta.FriendlyName}
+      var rarity string
+      switch meta.Rarity.(type) {
+      case string:
+        rarity = meta.Rarity.(string)
+      case float64:
+        rarity = fmt.Sprintf("%f", meta.Rarity.(float64))
+      }
+			metadata[position] = &PieceMetadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: rarity, FriendlyName: meta.FriendlyName}
 			pieces[position] = filePath
 		}
 	}
