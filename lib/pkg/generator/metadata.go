@@ -68,7 +68,9 @@ func generateMeta(pieces []*PieceMetadata, metadata chan<- *[]byte, errChan chan
 	if config.Output.IncludeMeta {
 		description, name := buildDescription(config, finalMeta)
 		finalMeta.Description = description
-		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
+    if name != "" {
+      finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
+    }
 	}
 	finalMeta.Name = fmt.Sprint(jobId)
 	switch config.Output.MetaFormat {
