@@ -11,7 +11,7 @@ import (
 
 func ValidateConfig(config *conf.Config) {
 	validateInput(config.Input.Local.Pathname, config.Input.Local.Filename)
-	validateOutput(config.Output.Local.Directory)
+	validateOutput(config.Output.Directory)
 }
 
 func validateOutput(path string) {

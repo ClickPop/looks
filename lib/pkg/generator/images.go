@@ -12,18 +12,18 @@ type ImageWithPosition struct {
 }
 
 func getImages(files <-chan *FileWithPosition, images chan<- *ImageWithPosition, errChan chan<- error) {
-  for file := range files {
-    img, err := png.Decode(file.File)
-    if err != nil {
-      errChan <- err
-    }
-    image := ImageWithPosition{Image: &img, Position: file.Position}
-    images <- &image
+	for file := range files {
+		img, err := png.Decode(file.File)
+		if err != nil {
+			errChan <- err
+		}
+		image := ImageWithPosition{Image: &img, Position: file.Position}
+		images <- &image
 	}
-  close(images)
+	close(images)
 }
 
-  func buildImage(images []*image.Image) *image.RGBA {
+func buildImage(images []*image.Image) *image.RGBA {
 	baseImage := *images[0]
 	rect := image.Rectangle{baseImage.Bounds().Min, baseImage.Bounds().Max}
 	img := image.NewRGBA(rect)

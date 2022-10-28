@@ -75,7 +75,7 @@ func storeConfig() {
 	viper.SetConfigType(cfgFiletype)
 	viper.SetConfigName(cfgFilename)
 	viper.SetDefault("input", &config.InputObject{Local: config.InputLocalObject{Pathname: "pieces", Filename: "%s-%s.png"}})
-	viper.SetDefault("output", &config.OutputObject{Local: config.OutputLocalObject{Directory: "generated"}, ImageCount: 100, IncludeMeta: true, MetaFormat: config.JSON})
+	viper.SetDefault("output", &config.OutputObject{Directory: "generated", ImageCount: 100, IncludeMeta: true, MetaFormat: config.JSON})
 	viper.SetDefault("settings", &config.ConfigSettings{MaxWorkers: 3})
 	viper.SetDefault("attributes", map[string]config.ConfigPiece{})
 	viper.SetDefault("descriptions", config.ConfigDescriptions{})

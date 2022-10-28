@@ -7,13 +7,13 @@ import (
 )
 
 func Filter(slice []string, cb func(val string) bool) []string {
-  filtered := make([]string, 0)
-  for _, v := range slice {
-    if cb(v) {
-      filtered = append(filtered, v)
-    }
-  }
-  return filtered
+	filtered := make([]string, 0)
+	for _, v := range slice {
+		if cb(v) {
+			filtered = append(filtered, v)
+		}
+	}
+	return filtered
 }
 
 func Contains(slice []string, haystack string) bool {

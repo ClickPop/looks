@@ -12,23 +12,23 @@ import (
 
 func computeMetadata(finalMeta OpenSeaMeta, stats map[string]conf.ConfigStat, pieces []*PieceMetadata) (OpenSeaMeta, map[string]conf.ConfigStat) {
 	for _, piece := range pieces {
-    finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: piece.Type, Value: piece.Piece})
-    sort.Slice(finalMeta.Attributes, func(i, j int) bool {
-      return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
-    })
-    for _, v := range piece.Attributes {
-      attr := stats[v.Name]
-      attr.Value += v.Value
-      if attr.Value >= v.Maximum {
-        attr.Value = v.Maximum
-      } else if attr.Value <= v.Minimum {
-        attr.Value = v.Minimum
-      }
-      stats[v.Name] = attr
-    }
+		finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: piece.Type, Value: piece.Piece})
+		sort.Slice(finalMeta.Attributes, func(i, j int) bool {
+			return finalMeta.Attributes[i].TraitType < finalMeta.Attributes[j].TraitType
+		})
+		for _, v := range piece.Attributes {
+			attr := stats[v.Name]
+			attr.Value += v.Value
+			if attr.Value >= v.Maximum {
+				attr.Value = v.Maximum
+			} else if attr.Value <= v.Minimum {
+				attr.Value = v.Minimum
+			}
+			stats[v.Name] = attr
+		}
 	}
 
-  return finalMeta, stats
+	return finalMeta, stats
 }
 
 func generateMeta(pieces []*PieceMetadata, metadata chan<- *[]byte, errChan chan<- error, config *conf.Config, jobId int) {
@@ -68,9 +68,9 @@ func generateMeta(pieces []*PieceMetadata, metadata chan<- *[]byte, errChan chan
 	if config.Output.IncludeMeta {
 		description, name := buildDescription(config, finalMeta)
 		finalMeta.Description = description
-    if name != "" {
-      finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
-    }
+		if name != "" {
+			finalMeta.Attributes = append(finalMeta.Attributes, OpenSeaAttribute{TraitType: "Type", Value: name})
+		}
 	}
 	finalMeta.Name = fmt.Sprint(jobId)
 	switch config.Output.MetaFormat {
@@ -98,7 +98,7 @@ func getCSVCols(config *conf.Config) []string {
 	return headings
 }
 
-func buildCsvHeading(config *conf.Config) *[]byte {
+func BuildCsvHeading(config *conf.Config) *[]byte {
 	headings := getCSVCols(config)
 	slice := []byte(strings.Join(headings, ","))
 	return &slice
