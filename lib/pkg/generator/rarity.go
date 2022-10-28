@@ -3,6 +3,7 @@ package generator
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/clickpop/looks/internal/utils"
@@ -161,7 +162,7 @@ func handleRarity(pieceTypes map[string]config.PieceAttribute, config *config.Co
     randomVariant := rand.Intn(variantCount)
     variant := variants[choice][randomVariant]
     choice = fmt.Sprintf("%s_%s", choice, variant)
-    friendlyName = fmt.Sprintf("%s %s", variant, piece.FriendlyName)
+    friendlyName = fmt.Sprintf("%s %s", strings.Title(variant), friendlyName)
   } else if variantCount == 1 && position == 0 {
     variant = piece.Variants[0]
   }
