@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"io"
 	"os"
-	"time"
+	"sync"
 
 	conf "github.com/clickpop/looks/pkg/config"
-  "github.com/clickpop/looks/pkg/logging"
+	"github.com/clickpop/looks/pkg/logging"
 )
 
 type PieceMetadata struct {
@@ -42,9 +41,10 @@ type OpenSeaAttribute struct {
 	TraitType   string      `json:"trait_type,omitempty"`
 	DisplayType string      `json:"display_type,omitempty"`
 	Value       interface{} `json:"value,omitempty"`
-	MaxValue    float64         `json:"max_value,omitempty"`
+	MaxValue    float64     `json:"max_value,omitempty"`
 }
 type GeneratedAsset struct {
+	Name  string
 	Image *bytes.Buffer
 	Meta  *bytes.Buffer
 	Hash  string
@@ -58,108 +58,78 @@ type Job struct {
 	outFile *os.File
 }
 
-type AssetsResult struct {
-	Assets []GeneratedAsset
-	CSV    io.Reader
-}
+var wg sync.WaitGroup
 
-func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), logChan chan<- string, errChan chan<- error) (AssetsResult, error) {
-  startTime := time.Now()
+func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), assets chan<- GeneratedAsset, logChan chan<- string, errChan chan<- error) {
 	image_count := int(config.Output.ImageCount)
+    wg.Add(image_count);
 
 	jobs := make(chan int, image_count)
-	results := make(chan GeneratedAsset, image_count)
 
 	num_workers := int(config.Settings.MaxWorkers)
-  if image_count < num_workers {
-    num_workers = image_count
-  }
-	for w := 0; w < num_workers; w++ {
-		go handleJob(w, config, jobs, results, errChan, logChan)
+	if image_count < num_workers {
+		num_workers = image_count
 	}
-  logChan <- fmt.Sprintf("spinning up %d workers", num_workers)
+	for w := 0; w < num_workers; w++ {
+		go handleJob(w, config, jobs, assets, errChan, logChan)
+	}
+	logChan <- fmt.Sprintf("spinning up %d workers", num_workers)
 	for i := 0; i < image_count; i++ {
 		jobs <- i
 	}
 	close(jobs)
-	var assets []GeneratedAsset
-	heading := buildCsvHeading(config)
-	csv := bytes.NewBuffer(*heading)
-  for asset := range results {
-    assets = append(assets, asset)
-    if config.Output.MetaFormat == conf.CSV {
-      csv.Write(asset.Meta.Bytes())
-    }
-  }
-  logChan <- fmt.Sprintf("Generated %d files in %d seconds.\n", image_count, int(time.Since(startTime).Seconds()))
-  close(logChan)
-  return AssetsResult{Assets: assets, CSV: csv}, nil
+    wg.Wait()
+	close(assets)
+	close(errChan)
+	close(logChan)
 }
 
-func handleJob(worker int, config *conf.Config, jobs <-chan int, results chan<- GeneratedAsset, errChan chan<- error, logChan chan<- string) {
+func handleJob(worker int, config *conf.Config, jobs <-chan int, assets chan<- GeneratedAsset, errChan chan<- error, logChan chan<- string) {
 	stats := buildStats(config)
-	for job := range jobs {
-    logChan <- logging.FormatLog(worker, job, "start asset build")
-    asset, err := buildAsset(config, worker, job, stats, logChan, errChan)
-		if err != nil {
-			errChan <- err
-		}
-		if results != nil {
-			results <- asset
-		}
+    for job := range jobs {
+		logChan <- logging.FormatLog(worker, job, "start asset build")
+		buildAsset(config, worker, job, stats, assets, logChan, errChan)
+        wg.Done()
 	}
-  close(results)
-  close(errChan)
 }
 
 func computeLayers(images <-chan *ImageWithPosition, size int) []*image.Image {
 	layers := make([]*image.Image, size)
-  for img := range images {
-    layers[img.Position] = img.Image
+	for img := range images {
+		layers[img.Position] = img.Image
 	}
-  return layers
+	return layers
 }
 
 func computeMeta(metadata <-chan *[]byte) []byte {
-  for data := range metadata {
-    return *data
+	for data := range metadata {
+		return *data
 	}
-  return nil
+	return nil
 }
 
-func buildAsset(config *conf.Config, worker int, job int, stats map[string]int, logChan chan<- string, errChan chan<- error) (GeneratedAsset, error) {
+func buildAsset(config *conf.Config, worker int, job int, stats map[string]int, assets chan<- GeneratedAsset, logChan chan<- string, errChan chan<- error) {
 	size := len(config.Settings.PieceOrder)
 	files := make(chan *FileWithPosition, size)
 	images := make(chan *ImageWithPosition, size)
 	metadata := make(chan *[]byte)
-  logChan <- logging.FormatLog(worker, job, "selecting pieces")
+	logChan <- logging.FormatLog(worker, job, "selecting pieces")
 	pieces, pieceMeta := loadPieces(config)
-  logChan <- logging.FormatLog(worker, job, "loading files")
-  go loadFiles(pieces, files, errChan)
-  logChan <- logging.FormatLog(worker, job, "decoding images")
+	logChan <- logging.FormatLog(worker, job, "loading files")
+	go loadFiles(pieces, files, errChan)
+	logChan <- logging.FormatLog(worker, job, "decoding images")
 	go getImages(files, images, errChan)
 	if config.Output.IncludeMeta {
-    logChan <- logging.FormatLog(worker, job, "generating meta")
+		logChan <- logging.FormatLog(worker, job, "generating meta")
 		go generateMeta(pieceMeta, metadata, errChan, config, job)
 	}
 	layers := computeLayers(images, size)
-  logChan <- logging.FormatLog(worker, job, "building image")
+	logChan <- logging.FormatLog(worker, job, "building image")
 	img := buildImage(layers)
 	imageOut := new(bytes.Buffer)
 	metaOut := new(bytes.Buffer)
 	meta := computeMeta(metadata)
-	if config.Output.Internal {
-		png.Encode(imageOut, img)
-		metaOut.Write(meta)
-	} else {
-		imageOut = nil
-		metaOut = nil
-	}
-	if config.Output.Local.Directory != "" {
-		err := storeFile(config, img, meta, job)
-		if err != nil {
-			return GeneratedAsset{}, nil
-		}
-	}
-	return GeneratedAsset{Image: imageOut, Meta: metaOut}, nil
+	png.Encode(imageOut, img)
+	metaOut.Write(meta)
+	assets <- GeneratedAsset{Image: imageOut, Meta: metaOut, Name: fmt.Sprint(job)}
 }

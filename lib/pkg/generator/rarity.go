@@ -87,84 +87,84 @@ func tagCheck(pieceTags []string, tags map[string]bool, tagsConfig config.TagCon
 }
 
 func filterVariants(pieceVariants []string, variant string, configVariants config.TagConfigSettings) []string {
-  acceptableVariants := make(map[string]bool)
-  filtered := make([]string, 0)
-  include := configVariants.Inclusive[variant]
-  exclude := configVariants.Exclusive[variant]
-  for _, v := range utils.Filter(pieceVariants, func(val string) bool {
-    return (len(include) < 1 || utils.Contains(include, val)) && (len(exclude) < 1 || !utils.Contains(exclude, val))
-  }) {
-    acceptableVariants[v] = true
-  }
+	acceptableVariants := make(map[string]bool)
+	filtered := make([]string, 0)
+	include := configVariants.Inclusive[variant]
+	exclude := configVariants.Exclusive[variant]
+	for _, v := range utils.Filter(pieceVariants, func(val string) bool {
+		return (len(include) < 1 || utils.Contains(include, val)) && (len(exclude) < 1 || !utils.Contains(exclude, val))
+	}) {
+		acceptableVariants[v] = true
+	}
 
-  for variant := range acceptableVariants {
-    filtered = append(filtered, variant)
-  }
-  return filtered
+	for variant := range acceptableVariants {
+		filtered = append(filtered, variant)
+	}
+	return filtered
 }
 
 func handleRarity(pieceTypes map[string]config.PieceAttribute, config *config.Config, tags map[string]bool, variant string, position int) (string, config.PieceAttribute, string, string) {
-  variants := make(map[string][]string)
-  rarityData := config.Settings.Rarity
-  possiblePieces := make(map[string]float64)
-  sum := float64(0)
-  for key, piece := range pieceTypes {
-    if tagCheck(piece.Tags, tags, config.Settings.Tags) {
-      if len(piece.Variants) < 1 {
-        switch piece.Rarity.(type) {
-        case string:
-          rarity := rarityData.Chances[piece.Rarity.(string)]
-          sum += rarity
-          possiblePieces[key] = rarity
-        case float64:
-          rarity := piece.Rarity.(float64)
-          sum += rarity
-          possiblePieces[key] = rarity
-        }
-      } else {
-        filteredVariants := filterVariants(piece.Variants, variant, config.Settings.Variants)
-        if (len(filteredVariants) > 0) {
-        switch piece.Rarity.(type) {
-        case string:
-          rarity := rarityData.Chances[piece.Rarity.(string)]
-          sum += rarity
-          possiblePieces[key] = rarity
-        case float64:
-          rarity := piece.Rarity.(float64)
-          sum += rarity
-          possiblePieces[key] = rarity
-        }
-          variants[key] = filteredVariants
-        }
-      }
-    }
-  }
+	variants := make(map[string][]string)
+	rarityData := config.Settings.Rarity
+	possiblePieces := make(map[string]float64)
+	sum := float64(0)
+	for key, piece := range pieceTypes {
+		if tagCheck(piece.Tags, tags, config.Settings.Tags) {
+			if len(piece.Variants) < 1 {
+				switch piece.Rarity.(type) {
+				case string:
+					rarity := rarityData.Chances[piece.Rarity.(string)]
+					sum += rarity
+					possiblePieces[key] = rarity
+				case float64:
+					rarity := piece.Rarity.(float64)
+					sum += rarity
+					possiblePieces[key] = rarity
+				}
+			} else {
+				filteredVariants := filterVariants(piece.Variants, variant, config.Settings.Variants)
+				if len(filteredVariants) > 0 {
+					switch piece.Rarity.(type) {
+					case string:
+						rarity := rarityData.Chances[piece.Rarity.(string)]
+						sum += rarity
+						possiblePieces[key] = rarity
+					case float64:
+						rarity := piece.Rarity.(float64)
+						sum += rarity
+						possiblePieces[key] = rarity
+					}
+					variants[key] = filteredVariants
+				}
+			}
+		}
+	}
 
 	seed := time.Now().Unix() + int64(time.Now().Nanosecond())
 	rand.Seed(seed)
-  random := rand.Float64() * sum
-  var choice string
-  randSum := float64(0)
-  for piece, rarity := range possiblePieces {
-    randSum += rarity
-    if random < randSum {
-      choice = piece
-      break;
-    }
-  }
-  piece := pieceTypes[choice]
-  friendlyName := piece.FriendlyName
-  if friendlyName == "" {
-    friendlyName = utils.TransformName(choice)
-  }
-  variantCount := len(variants[choice])
-  if variantCount > 0 && position > 0 {
-    randomVariant := rand.Intn(variantCount)
-    variant := variants[choice][randomVariant]
-    choice = fmt.Sprintf("%s_%s", choice, variant)
-    friendlyName = fmt.Sprintf("%s %s", strings.Title(variant), friendlyName)
-  } else if variantCount == 1 && position == 0 {
-    variant = piece.Variants[0]
-  }
+	random := rand.Float64() * sum
+	var choice string
+	randSum := float64(0)
+	for piece, rarity := range possiblePieces {
+		randSum += rarity
+		if random < randSum {
+			choice = piece
+			break
+		}
+	}
+	piece := pieceTypes[choice]
+	friendlyName := piece.FriendlyName
+	if friendlyName == "" {
+		friendlyName = utils.TransformName(choice)
+	}
+	variantCount := len(variants[choice])
+	if variantCount > 0 && position > 0 {
+		randomVariant := rand.Intn(variantCount)
+		variant := variants[choice][randomVariant]
+		choice = fmt.Sprintf("%s_%s", choice, variant)
+		friendlyName = fmt.Sprintf("%s %s", strings.Title(variant), friendlyName)
+	} else if variantCount == 1 && position == 0 {
+		variant = piece.Variants[0]
+	}
 	return choice, pieceTypes[choice], variant, friendlyName
 }

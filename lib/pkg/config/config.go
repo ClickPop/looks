@@ -32,16 +32,11 @@ type InputLocalObject struct {
 }
 
 type OutputObject struct {
-	Local         OutputLocalObject `json:"local" yaml:"local" toml:"local" mapstructure:"local"`
-	Internal      bool              `json:"internal" yaml:"internal" toml:"internal" mapstructure:"internal"`
-	ImageCount    int               `json:"image-count" yaml:"image-count" toml:"image-count" mapstructure:"image-count"`
-	IncludeMeta   bool              `json:"include-meta" yaml:"include-meta" toml:"include-meta" mapstructure:"include-meta"`
-	MetaFormat    MetaFormat        `json:"meta-format" yaml:"meta-format" toml:"meta-format" mapstructure:"meta-format"`
-	MinimumRarity string            `json:"minimum-rarity" yaml:"minimum-rarity" toml:"minimum-rarity" mapstructure:"minimum-rarity"`
-}
-
-type OutputLocalObject struct {
-	Directory string `json:"directory" yaml:"directory" toml:"directory" mapstructure:"directory"`
+	Directory     string     `json:"directory" yaml:"directory" toml:"directory" mapstructure:"directory"`
+	ImageCount    int        `json:"image-count" yaml:"image-count" toml:"image-count" mapstructure:"image-count"`
+	IncludeMeta   bool       `json:"include-meta" yaml:"include-meta" toml:"include-meta" mapstructure:"include-meta"`
+	MetaFormat    MetaFormat `json:"meta-format" yaml:"meta-format" toml:"meta-format" mapstructure:"meta-format"`
+	MinimumRarity string     `json:"minimum-rarity" yaml:"minimum-rarity" toml:"minimum-rarity" mapstructure:"minimum-rarity"`
 }
 
 type ConfigSettings struct {
@@ -74,9 +69,9 @@ type ConfigDescriptionTypes struct {
 }
 
 type ConfigStat struct {
-	Name    string `json:"name" yaml:"name" toml:"name" mapstructure:"name"`
-	Minimum float64    `json:"minimum" yaml:"minimum" toml:"minimum" mapstructure:"minimum"`
-	Maximum float64    `json:"maximum" yaml:"maximum" toml:"maximum" mapstructure:"maximum"`
+	Name    string  `json:"name" yaml:"name" toml:"name" mapstructure:"name"`
+	Minimum float64 `json:"minimum" yaml:"minimum" toml:"minimum" mapstructure:"minimum"`
+	Maximum float64 `json:"maximum" yaml:"maximum" toml:"maximum" mapstructure:"maximum"`
 	Value   float64
 }
 
@@ -92,11 +87,11 @@ type ConfigRarity struct {
 }
 
 type PieceAttribute struct {
-	Rarity       interface{}         `json:"rarity" yaml:"rarity" toml:"rarity" mapstructure:"rarity"`
-	Stats        map[string]float64  `json:"stats" yaml:"stats" toml:"stats" mapstructure:"stats"`
-	Tags         []string       `json:"tags" yaml:"tags" toml:"tags" mapstructure:"tags"`
-	Variants     []string       `json:"variants" yaml:"variants" toml:"variants" mapstructure:"variants"`
-	FriendlyName string         `json:"friendly-name" yaml:"friendly-name" toml:"friendly-name" mapstructure:"friendly-name"`
+	Rarity       interface{}        `json:"rarity" yaml:"rarity" toml:"rarity" mapstructure:"rarity"`
+	Stats        map[string]float64 `json:"stats" yaml:"stats" toml:"stats" mapstructure:"stats"`
+	Tags         []string           `json:"tags" yaml:"tags" toml:"tags" mapstructure:"tags"`
+	Variants     []string           `json:"variants" yaml:"variants" toml:"variants" mapstructure:"variants"`
+	FriendlyName string             `json:"friendly-name" yaml:"friendly-name" toml:"friendly-name" mapstructure:"friendly-name"`
 }
 
 type ConfigPiece struct {

@@ -23,21 +23,21 @@ func loadFiles(pieces []string, files chan<- *FileWithPosition, errChan chan<- e
 		}
 		files <- &FileWithPosition{File: bytes.NewReader(file), Position: position}
 	}
-  close(files)
+	close(files)
 }
 
 func loadPieces(config *conf.Config) ([]string, []*PieceMetadata) {
 	tags := make(map[string]bool)
-  variant := ""
+	variant := ""
 	pieces := make([]string, len(config.Settings.PieceOrder))
-  metadata := make([]*PieceMetadata, len(config.Settings.PieceOrder))
+	metadata := make([]*PieceMetadata, len(config.Settings.PieceOrder))
 	for position, pieceType := range config.Settings.PieceOrder {
-    pieceTypeFriendlyName := config.Attributes[pieceType].FriendlyName
+		pieceTypeFriendlyName := config.Attributes[pieceType].FriendlyName
 		if pieceTypeFriendlyName == "" {
 			pieceTypeFriendlyName = utils.TransformName(pieceType)
 		}
-    piece, meta, v, pieceFriendlyName := handleRarity(config.Attributes[pieceType].Pieces, config, tags, variant, position)
-    variant = v
+		piece, meta, v, pieceFriendlyName := handleRarity(config.Attributes[pieceType].Pieces, config, tags, variant, position)
+		variant = v
 		if piece != "nil" {
 			fileName := fmt.Sprintf(config.Input.Local.Filename, pieceType, piece)
 			filePath := fmt.Sprintf("%s/%s", config.Input.Local.Pathname, fileName)
@@ -56,13 +56,13 @@ func loadPieces(config *conf.Config) ([]string, []*PieceMetadata) {
 					tags[tag] = true
 				}
 			}
-      var rarity string
-      switch meta.Rarity.(type) {
-      case string:
-        rarity = meta.Rarity.(string)
-      case float64:
-        rarity = fmt.Sprintf("%f", meta.Rarity.(float64))
-      }
+			var rarity string
+			switch meta.Rarity.(type) {
+			case string:
+				rarity = meta.Rarity.(string)
+			case float64:
+				rarity = fmt.Sprintf("%f", meta.Rarity.(float64))
+			}
 			metadata[position] = &PieceMetadata{Type: pieceTypeFriendlyName, Piece: pieceFriendlyName, Attributes: stats, Rarity: rarity, FriendlyName: meta.FriendlyName}
 			pieces[position] = filePath
 		}
