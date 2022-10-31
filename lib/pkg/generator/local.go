@@ -7,10 +7,10 @@ import (
 	conf "github.com/clickpop/looks/pkg/config"
 )
 
-func StoreFile(config *conf.Config, asset *GeneratedAsset) error {
+func StoreFile(config *conf.Config, asset GeneratedAsset) error {
 	var err error
 	if asset.Image != nil {
-		err = os.WriteFile(fmt.Sprintf("./%s/%s.json", config.Output.Directory, asset.Name), asset.Image.Bytes(), 0666)
+		err = os.WriteFile(fmt.Sprintf("./%s/%s.png", config.Output.Directory, asset.Name), asset.Image.Bytes(), 0666)
 		if err != nil {
 			return err
 		}

@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/png"
 	"os"
+	"sync"
 
 	conf "github.com/clickpop/looks/pkg/config"
 	"github.com/clickpop/looks/pkg/logging"
@@ -57,8 +58,11 @@ type Job struct {
 	outFile *os.File
 }
 
+var wg sync.WaitGroup
+
 func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), assets chan<- GeneratedAsset, logChan chan<- string, errChan chan<- error) {
 	image_count := int(config.Output.ImageCount)
+    wg.Add(image_count);
 
 	jobs := make(chan int, image_count)
 
@@ -74,17 +78,19 @@ func Generate(config *conf.Config, hashCheckCb func(config *conf.Config), assets
 		jobs <- i
 	}
 	close(jobs)
+    wg.Wait()
+	close(assets)
+	close(errChan)
+	close(logChan)
 }
 
 func handleJob(worker int, config *conf.Config, jobs <-chan int, assets chan<- GeneratedAsset, errChan chan<- error, logChan chan<- string) {
 	stats := buildStats(config)
-	for job := range jobs {
+    for job := range jobs {
 		logChan <- logging.FormatLog(worker, job, "start asset build")
 		buildAsset(config, worker, job, stats, assets, logChan, errChan)
+        wg.Done()
 	}
-	close(assets)
-	close(errChan)
-	close(logChan)
 }
 
 func computeLayers(images <-chan *ImageWithPosition, size int) []*image.Image {
